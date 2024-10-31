@@ -8,12 +8,13 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 import indexRouter from "./routes/index";
-import usersRouter from "./routes/users";
+import usersRouter from "./routes/userRoutes";
 import categoriesRouter from "./routes/categories";
 import eventsRouter from "./routes/events";
 import organizersRouter from "./routes/organizers";
 import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
+import authRouter from "./routes/authRoutes";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use(cors());
 
 // Routes
 app.use("/", indexRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/events", eventsRouter);
