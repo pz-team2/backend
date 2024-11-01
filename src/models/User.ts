@@ -8,6 +8,8 @@ export interface IUser extends Document {
   gender: string;
   phoneNumber: string;
   city: string;
+  emailToken?: string,
+  isVerified: boolean,
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,6 +27,8 @@ const userSchema: Schema<IUser> = new Schema(
     },
     phoneNumber: { type: String, required: false },
     city: { type: String, required: false },
+    isVerified: {type: Boolean, required: true},
+    emailToken: {type: String, required: false},
   },
   {
     timestamps: true, // Mengaktifkan createdAt dan updatedAt secara otomatis

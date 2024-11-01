@@ -6,7 +6,6 @@ dotenv.config();
 const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(process.env.MONGODB_URI || '', {
-      // Menerapkan opsi koneksi tipe ConnectOptions
     } as ConnectOptions);
     console.log('MongoDB connected successfully');
   } catch (error: any) {

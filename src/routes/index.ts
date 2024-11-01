@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import categoriesRouter from "./categories";
+import categoriesRouter from "./categoriesRoutes";
 import eventsRouter from "./events";
 import organizersRouter from "./organizers";
 import paymentsRouter from "./payments";
