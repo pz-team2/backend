@@ -8,9 +8,9 @@ import mongoose from "mongoose";
 
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/userRoutes";
-import categoriesRouter from "./routes/categoriesRoutes";
+import categoriesRouter from "./routes/categoryRoutes";
 import eventsRouter from "./routes/events";
-import organizersRouter from "./routes/organizers";
+import organizersRouter from "./routes/organizerRoutes";
 import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
@@ -37,20 +37,18 @@ app.use("/api/organizers", organizersRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api/tickets", ticketsRouter);
 
-
-
 // Connect Database
 const urlMongo = process.env.MONGODB_URI as string;
 const port = process.env.PORT || 3500;
 
-mongoose.connect(urlMongo)
+mongoose.connect(urlMongo);
 try {
-    console.log('Connect MongoDb')
-    app.listen(port, () => {
-        console.log(`Server Running  http://localhost:${port}`)
-    })
+  console.log("Connect MongoDb");
+  app.listen(port, () => {
+    console.log(`Server Running  http://localhost:${port}`);
+  });
 } catch {
-    console.error('Error Connecting to MongoDB or Starting Server')
+  console.error("Error Connecting to MongoDB or Starting Server");
 }
 
 export default app;
