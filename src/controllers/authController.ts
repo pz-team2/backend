@@ -25,6 +25,7 @@ const getAccessToken = async (): Promise<string> => {
   try {
     const { token } = await oauth2Client.getAccessToken();
     if (!token) throw new Error("Gagal !! access token");
+    console.log("Access Token: ", token);
     return token;
   } catch (error) {
     console.error("Error access token:", error);
@@ -81,13 +82,14 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
+        console.error("Error sending email: ", error);
         res.status(500).json(apiResponse(false, 'Email Gagal Terkirim', error));
       } else {
         res.status(201).json(apiResponse(true,'Registrasi Berhasil Silahkan Verifikasi Email !!'));
       }
     });
   } catch (error) {
-    // console.error("Terjadi Kesalahan Saat Registrasi ", error);
+    console.error("Terjadi Kesalahan Saat Registrasi ", error);
     res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Registrasi '));
   }
 };
@@ -113,7 +115,7 @@ export const Login:RequestHandler =  async (req: Request, res: Response) => {
     const payload = { userId: user.id };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-    return res.status(200).json(apiResponse(false, 'Berhasil Login ', {token}));
+    return res.status(200).json(apiResponse(true, 'Berhasil Login ', {token}));
   } catch (error) {
     return res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Login'));
   }
