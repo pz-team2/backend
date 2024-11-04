@@ -1,88 +1,94 @@
 import { Request, Response } from "express";
-import Category, { ICategory } from "../models/Category";
+import Category from "../models/Category";
+import apiResponse from "../utils/apiResource";
 
-// CREATE: Menambahkan kategori baru
+// Mendapatkan seluruh kategori
+export const getCategories = async (req: Request, res: Response) => {
+  try {
+    const categories = await Category.find();
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan kategori", categories));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan kategori", error));
+  }
+};
+
+// Mendapatkan kategori berdasarkan ID
+export const getCategoryById = async (req: Request, res: Response) => {
+  const categoryId = req.params.id;
+  try {
+    const category = await Category.findById(categoryId);
+    if (!category) {
+      return res
+        .status(404)
+        .json(apiResponse(false, "Kategori tidak ditemukan"));
+    }
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan kategori", category));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan kategori", error));
+  }
+};
+
+// Menambahkan kategori baru
 export const createCategory = async (req: Request, res: Response) => {
   const { name, description } = req.body;
-
   try {
     const newCategory = new Category({ name, description });
     await newCategory.save();
-    return res.status(201).json(newCategory);
+    res
+      .status(201)
+      .json(apiResponse(true, "Kategori berhasil ditambahkan", newCategory));
   } catch (error) {
-    return res
-      .status(400)
-      .json({ message: "Error creating category", error: error });
-  }
-};
-
-// READ: Mengambil semua kategori
-export const getCategories = async (req: Request, res: Response) => {
-  try {
-    const categories: ICategory[] = await Category.find();
-    return res.status(200).json(categories);
-  } catch (error) {
-    return res
+    res
       .status(500)
-      .json({ message: "Error fetching categories", error: error });
+      .json(apiResponse(false, "Gagal menambahkan kategori", error));
   }
 };
 
-// READ: Mengambil kategori berdasarkan ID
-export const getCategoryById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const category = await Category.findById(id);
-    if (!category) {
-      return res.status(404).json({ message: "Category not found" });
-    }
-    return res.status(200).json(category);
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching category", error: error });
-  }
-};
-
-// UPDATE: Memperbarui kategori berdasarkan ID
+// Mengupdate kategori
 export const updateCategory = async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const categoryId = req.params.id;
   const { name, description } = req.body;
-
   try {
     const updatedCategory = await Category.findByIdAndUpdate(
-      id,
+      categoryId,
       { name, description },
-      { new: true } // Mengembalikan kategori yang telah diperbarui
+      { new: true }
     );
-
     if (!updatedCategory) {
-      return res.status(404).json({ message: "Category not found" });
+      return res
+        .status(404)
+        .json(apiResponse(false, "Kategori tidak ditemukan"));
     }
-
-    return res.status(200).json(updatedCategory);
+    res
+      .status(200)
+      .json(apiResponse(true, "Kategori berhasil diperbarui", updatedCategory));
   } catch (error) {
-    return res
-      .status(400)
-      .json({ message: "Error updating category", error: error });
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal memperbarui kategori", error));
   }
 };
 
-// DELETE: Menghapus kategori berdasarkan ID
+// Menghapus kategori
 export const deleteCategory = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
+  const categoryId = req.params.id;
   try {
-    const deletedCategory = await Category.findByIdAndDelete(id);
+    const deletedCategory = await Category.findByIdAndDelete(categoryId);
     if (!deletedCategory) {
-      return res.status(404).json({ message: "Category not found" });
+      return res
+        .status(404)
+        .json(apiResponse(false, "Kategori tidak ditemukan"));
     }
-
-    return res.status(200).json({ message: "Category deleted successfully" });
+    res.status(200).json(apiResponse(true, "Kategori berhasil dihapus"));
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error deleting category", error: error });
+    res.status(500).json(apiResponse(false, "Gagal menghapus kategori", error));
   }
 };

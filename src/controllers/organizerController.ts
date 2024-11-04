@@ -1,114 +1,98 @@
 import { Request, Response } from "express";
-import Organizer, { IOrganizer } from "../models/Organizer";
-import bcrypt from "bcryptjs";
+import Organizer from "../models/Organizer";
+import apiResponse from "../utils/apiResource";
 
-// CREATE: Menambahkan organizer baru
-export const createOrganizer = async (req: Request, res: Response) => {
-  const { username, email, password, role, organizerName, phoneNumber } =
-    req.body;
-
-  try {
-    // Cek apakah username sudah digunakan
-    const existingUsername = await Organizer.findOne({ username });
-    if (existingUsername) {
-      return res.status(400).json({ message: "Username sudah digunakan" });
-    }
-
-    // Cek apakah email sudah digunakan
-    const existingEmail = await Organizer.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ message: "Email sudah digunakan" });
-    }
-
-    // Hash password menggunakan bcrypt
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newOrganizer = new Organizer({
-      username,
-      email,
-      password: hashedPassword, // Simpan password yang telah di-hash
-      role,
-      organizerName,
-      phoneNumber,
-    });
-
-    await newOrganizer.save();
-    return res.status(201).json(newOrganizer);
-  } catch (error) {
-    return res
-      .status(400)
-      .json({ message: "Error creating organizer", error: error });
-  }
-};
-
-// READ: Mengambil semua organizer
+// Mendapatkan semua organizer
 export const getOrganizers = async (req: Request, res: Response) => {
   try {
-    const organizers: IOrganizer[] = await Organizer.find();
-    return res.status(200).json(organizers);
+    const organizers = await Organizer.find();
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan organizer", organizers));
   } catch (error) {
-    return res
+    res
       .status(500)
-      .json({ message: "Error fetching organizers", error: error });
+      .json(apiResponse(false, "Gagal mendapatkan organizer", error));
   }
 };
 
-// READ: Mengambil organizer berdasarkan ID
+// Mendapatkan organizer berdasarkan ID
 export const getOrganizerById = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
+  const organizerId = req.params.id;
   try {
-    const organizer = await Organizer.findById(id);
+    const organizer = await Organizer.findById(organizerId);
     if (!organizer) {
-      return res.status(404).json({ message: "Organizer not found" });
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer tidak ditemukan"));
     }
-    return res.status(200).json(organizer);
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan organizer", organizer));
   } catch (error) {
-    return res
+    res
       .status(500)
-      .json({ message: "Error fetching organizer", error: error });
+      .json(apiResponse(false, "Gagal mendapatkan organizer", error));
   }
 };
 
-// UPDATE: Memperbarui organizer berdasarkan ID
-export const updateOrganizer = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { username, email, password, role, organizerName, phoneNumber } =
-    req.body;
+// Menambahkan organizer baru
+export const createOrganizer = async (req: Request, res: Response) => {
+  const { name, description, contact } = req.body;
+  try {
+    const newOrganizer = new Organizer({ name, description, contact });
+    await newOrganizer.save();
+    res
+      .status(201)
+      .json(apiResponse(true, "Organizer berhasil ditambahkan", newOrganizer));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal menambahkan organizer", error));
+  }
+};
 
+// Mengupdate data organizer
+export const updateOrganizer = async (req: Request, res: Response) => {
+  const organizerId = req.params.id;
+  const { name, description, contact } = req.body;
   try {
     const updatedOrganizer = await Organizer.findByIdAndUpdate(
-      id,
-      { username, email, password, role, organizerName, phoneNumber },
-      { new: true } // Mengembalikan organizer yang telah diperbarui
+      organizerId,
+      { name, description, contact },
+      { new: true }
     );
-
     if (!updatedOrganizer) {
-      return res.status(404).json({ message: "Organizer not found" });
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer tidak ditemukan"));
     }
-
-    return res.status(200).json(updatedOrganizer);
+    res
+      .status(200)
+      .json(
+        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer)
+      );
   } catch (error) {
-    return res
-      .status(400)
-      .json({ message: "Error updating organizer", error: error });
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal memperbarui organizer", error));
   }
 };
 
-// DELETE: Menghapus organizer berdasarkan ID
+// Menghapus organizer
 export const deleteOrganizer = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
+  const organizerId = req.params.id;
   try {
-    const deletedOrganizer = await Organizer.findByIdAndDelete(id);
+    const deletedOrganizer = await Organizer.findByIdAndDelete(organizerId);
     if (!deletedOrganizer) {
-      return res.status(404).json({ message: "Organizer not found" });
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer tidak ditemukan"));
     }
-
-    return res.status(200).json({ message: "Organizer deleted successfully" });
+    res.status(200).json(apiResponse(true, "Organizer berhasil dihapus"));
   } catch (error) {
-    return res
+    res
       .status(500)
-      .json({ message: "Error deleting organizer", error: error });
+      .json(apiResponse(false, "Gagal menghapus organizer", error));
   }
 };
