@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import categoriesRouter from "./categoryRoutes";
-import eventsRouter from "./events";
+import eventsRouter from "./eventsRoutes";
 import organizersRouter from "./organizerRoutes";
 import paymentsRouter from "./payments";
 import ticketsRouter from "./tickets";

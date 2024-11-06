@@ -9,11 +9,12 @@ import mongoose from "mongoose";
 import indexRouter from "./routes/index";
 import usersRouter from "./routes/userRoutes";
 import categoriesRouter from "./routes/categoryRoutes";
-import eventsRouter from "./routes/events";
+import routerEvent from "./routes/eventsRoutes";
 import organizersRouter from "./routes/organizerRoutes";
 import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
+import upload from "./middleware/uploadFile";
 
 dotenv.config();
 
@@ -22,9 +23,10 @@ const app = express();
 // Middleware setup
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+// app.use(express.static(path.join(__dirname, "public")));
+app.use(upload.single('picture')); // Gunakan multer di tempat yang benar
 
 // Cors 
 const corsOptions = {
@@ -40,7 +42,7 @@ app.use("/", indexRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
-app.use("/api/events", eventsRouter);
+app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
 app.use("/api/payments", paymentsRouter);
 app.use("/api/tickets", ticketsRouter);

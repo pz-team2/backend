@@ -20,7 +20,7 @@ const organizerSchema = new Schema<IOrganizer>(
     },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, required: true },
+    role: { type: String, required: true, default: 'organizer' },
     organizerName: { type: String, required: true },
     phoneNumber: { type: Number, required: true },
   },

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Organizer from "../models/Organizer";
 import apiResponse from "../utils/apiResource";
+import bcrypt from 'bcryptjs'
 
 // Mendapatkan semua organizer
 export const getOrganizers = async (req: Request, res: Response) => {
@@ -38,9 +39,12 @@ export const getOrganizerById = async (req: Request, res: Response) => {
 
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
-  const { name, description, contact } = req.body;
+  const { username, phoneNumber, organizerName, email, password } = req.body;
   try {
-    const newOrganizer = new Organizer({ name, description, contact });
+
+    const hashpassword = await bcrypt.hash(password, 10);
+
+    const newOrganizer = new Organizer({ username, phoneNumber, organizerName, email, password: hashpassword });
     await newOrganizer.save();
     res
       .status(201)
