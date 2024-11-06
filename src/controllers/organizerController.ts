@@ -59,11 +59,11 @@ export const createOrganizer = async (req: Request, res: Response) => {
 // Mengupdate data organizer
 export const updateOrganizer = async (req: Request, res: Response) => {
   const organizerId = req.params.id;
-  const { name, description, contact } = req.body;
+  const { username, phoneNumber, organizerName, email } = req.body;
   try {
     const updatedOrganizer = await Organizer.findByIdAndUpdate(
       organizerId,
-      { name, description, contact },
+      { username, phoneNumber, organizerName, email },
       { new: true }
     );
     if (!updatedOrganizer) {
