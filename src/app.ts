@@ -9,7 +9,7 @@ import usersRouter from "./routes/userRoutes";
 import categoriesRouter from "./routes/categoryRoutes";
 import routerEvent from "./routes/eventsRoutes";
 import organizersRouter from "./routes/organizerRoutes";
-import paymentsRouter from "./routes/payments";
+// import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
 import upload from "./middleware/uploadFile";
@@ -40,7 +40,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
-app.use("/api/payments", paymentsRouter);
+// app.use("/api/payments", paymentsRouter);
 app.use("/api/tickets", ticketsRouter);
 
 // Connect Database
