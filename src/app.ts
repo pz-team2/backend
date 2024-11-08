@@ -13,10 +13,12 @@ import organizersRouter from "./routes/organizerRoutes";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
 import upload from "./middleware/uploadFile";
+import { setupSwagger } from "./config/swagger";
 
 dotenv.config();
 
 const app = express();
+setupSwagger(app);
 
 // Middleware setup
 app.use(logger("dev"));
@@ -24,12 +26,12 @@ app.use(express.urlencoded({ extended: true })); // Express URL encoded body par
 // app.use(upload.single('picture')); // Gunakan multer untuk upload file gambar
 // app.use(express.json()); // Tidak perlu karena kamu sudah menggunakan express.urlencoded
 
-// Cors 
+// Cors
 const corsOptions = {
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 };
 app.use(cors(corsOptions));
 
