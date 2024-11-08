@@ -9,6 +9,7 @@ import usersRouter from "./routes/userRoutes";
 import categoriesRouter from "./routes/categoryRoutes";
 import routerEvent from "./routes/eventsRoutes";
 import organizersRouter from "./routes/organizerRoutes";
+import dashboardRouter from "./routes/dashboardRoutes";
 // import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
@@ -42,6 +43,7 @@ app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
 // app.use("/api/payments", paymentsRouter);
 app.use("/api/tickets", ticketsRouter);
+app.use("/api/dashboard", dashboardRouter);
 
 // Connect Database
 const urlMongo = process.env.MONGODB_URI as string;
