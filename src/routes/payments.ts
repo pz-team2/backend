@@ -2,7 +2,7 @@ import snap from "../utils/midtranst";
 import Payment from "../models/Payment";
 import { Request, Response } from "express";
 
-exports.createPayment = async (req:Request, res:Response) => {
+exports.createPayment = async (req: Request, res: Response) => {
   try {
     const { amount, method, event, quantity } = req.body;
     const user = req.user.id; // Mendapatkan user ID dari JWT
@@ -14,14 +14,14 @@ exports.createPayment = async (req:Request, res:Response) => {
       },
       customer_details: {
         user_id: user,
-        email: 'customer@example.com',
+        email: "customer@example.com",
       },
       item_details: [
         {
           id: event,
           price: amount,
           quantity: quantity,
-          name: 'Tiket Event',
+          name: "Tiket Event",
         },
       ],
     };
@@ -35,17 +35,17 @@ exports.createPayment = async (req:Request, res:Response) => {
       user,
       event,
       quantity,
-      paymentStatus: 'pending',
+      paymentStatus: "pending",
     });
 
     await payment.save();
 
     res.status(200).json({
-      message: 'Transaksi berhasil dibuat',
+      message: "Transaksi berhasil dibuat",
       transactionToken: transaction.token,
       payment,
     });
   } catch (error) {
-    res.status(500).json({ message: 'Terjadi kesalahan pada server', error });
+    res.status(500).json({ message: "Terjadi kesalahan pada server", error });
   }
 };

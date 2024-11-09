@@ -2,14 +2,14 @@ import { Response, Request, RequestHandler } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/User";
 import jwt from "jsonwebtoken";
-import nodemailer from 'nodemailer';
-import crypto from 'crypto';
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 import dotenv from "dotenv";
-import { google } from 'googleapis';
+import { google } from "googleapis";
 import apiResponse from "../utils/apiResource";
 
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || 'defaultSecretKey';
+const JWT_SECRET = process.env.JWT_SECRET || "defaultSecretKey";
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -33,15 +33,91 @@ const getAccessToken = async (): Promise<string> => {
   }
 };
 
-export const Register: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     description: Endpoint untuk mendaftarkan user baru dengan username, email, dan password. Jika registrasi berhasil, akan mengirim email verifikasi.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: Username yang dipilih oleh user
+ *                 example: johndoe
+ *               email:
+ *                 type: string
+ *                 description: Email yang akan digunakan untuk login dan verifikasi
+ *                 example: johndoe@example.com
+ *               password:
+ *                 type: string
+ *                 description: Password untuk keamanan akun
+ *                 example: StrongPassword123
+ *     responses:
+ *       201:
+ *         description: User berhasil terdaftar, email verifikasi dikirim.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Registrasi Berhasil Silahkan Verifikasi Email !!
+ *       400:
+ *         description: Email sudah terdaftar
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Email Sudah Terdaftar Silahkan Login !
+ *       500:
+ *         description: Terjadi kesalahan saat proses registrasi
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Terjadi Kesalahan Saat Registrasi
+ */
 
+export const Register: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { username, email, password } = req.body;
 
   try {
     const checkEmail = await User.findOne({ email });
 
     if (checkEmail) {
-      res.status(400).json(apiResponse(false, 'Email Sudah Terdaftar Silahkan Login !'));
+      res
+        .status(400)
+        .json(apiResponse(false, "Email Sudah Terdaftar Silahkan Login !"));
       return;
     }
 
@@ -62,9 +138,9 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
     const accessToken = await getAccessToken();
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
-        type: 'OAuth2',
+        type: "OAuth2",
         user: process.env.EMAIL_USER,
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -76,59 +152,120 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'Verify Your Email',
-      html: `<p>Hello ${username},</p><p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>`
+      subject: "Verify Your Email",
+      html: `<p>Hello ${username},</p><p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email: ", error);
-        res.status(500).json(apiResponse(false, 'Email Gagal Terkirim', error));
+        res.status(500).json(apiResponse(false, "Email Gagal Terkirim", error));
       } else {
-        res.status(201).json(apiResponse(true,'Registrasi Berhasil Silahkan Verifikasi Email !!'));
+        res
+          .status(201)
+          .json(
+            apiResponse(
+              true,
+              "Registrasi Berhasil Silahkan Verifikasi Email !!"
+            )
+          );
       }
     });
   } catch (error) {
     console.error("Terjadi Kesalahan Saat Registrasi ", error);
-    res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Registrasi '));
+    res
+      .status(500)
+      .json(apiResponse(false, "Terjadi Kesalahan Saat Registrasi "));
   }
 };
 
 // Login
-export const Login:RequestHandler =  async (req: Request, res: Response) => {
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Login an existing user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Successfully logged in
+ *       400:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Login error
+ */
+export const Login: RequestHandler = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json(apiResponse(false, 'Email Tidak  Ditemukan'));
+      return res.status(400).json(apiResponse(false, "Email Tidak  Ditemukan"));
     }
 
     const checkpassword = await bcrypt.compare(password, user.password);
     if (!checkpassword) {
-      return res.status(400).json(apiResponse(false, 'Password Salah '));
+      return res.status(400).json(apiResponse(false, "Password Salah "));
     }
 
     // Buat payload dan token JWT
     const payload = { userId: user.id };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-    return res.status(200).json(apiResponse(true, 'Berhasil Login ', {token}));
+    return res
+      .status(200)
+      .json(apiResponse(true, "Berhasil Login ", { token }));
   } catch (error) {
-    return res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Login'));
+    return res
+      .status(500)
+      .json(apiResponse(false, "Terjadi Kesalahan Saat Login"));
   }
 };
 
-export const verifyEmail: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+/**
+ * @swagger
+ * /api/auth/verify/{token}:
+ *   get:
+ *     summary: Verify user's email
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Email verification token
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *       400:
+ *         description: Token expired or invalid
+ *       500:
+ *         description: Error verifying email
+ */
+export const verifyEmail: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { token } = req.params;
 
   try {
     const users = await User.findOne({ emailToken: token });
 
     if (!users) {
-      res.status(400).json(apiResponse(false, 'Token Expired '));
+      res.status(400).json(apiResponse(false, "Token Expired "));
       return;
     }
 
@@ -136,9 +273,17 @@ export const verifyEmail: RequestHandler = async (req: Request, res: Response): 
     users.isVerified = true;
     await users.save();
 
-    res.status(200).json(apiResponse(true, 'Success Verifikasi Email Silahkan Login !!!  ', {users}));
+    res.status(200).json(
+      apiResponse(true, "Success Verifikasi Email Silahkan Login !!!  ", {
+        users,
+      })
+    );
   } catch (error) {
     console.error("Error during email verification:", error);
-    res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Verifikasi Email ', error));
+    res
+      .status(500)
+      .json(
+        apiResponse(false, "Terjadi Kesalahan Saat Verifikasi Email ", error)
+      );
   }
 };
