@@ -13,6 +13,7 @@ import dashboardRouter from "./routes/dashboardRoutes";
 // import paymentsRouter from "./routes/payments";
 import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
+import searchRouter from "./routes/searchRoutes";
 import upload from "./middleware/uploadFile";
 
 dotenv.config();
@@ -44,6 +45,7 @@ app.use("/api/organizers", organizersRouter);
 // app.use("/api/payments", paymentsRouter);
 app.use("/api/tickets", ticketsRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/search", searchRouter);
 
 // Connect Database
 const urlMongo = process.env.MONGODB_URI as string;
