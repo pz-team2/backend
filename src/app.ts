@@ -16,6 +16,7 @@ import authRouter from "./routes/authRoutes";
 import searchRouter from "./routes/searchRoutes";
 import upload from "./middleware/uploadFile";
 import { setupSwagger } from "./config/swagger";
+import routerPayment from "./routes/paymentRoutes";
 
 dotenv.config();
 
@@ -24,9 +25,8 @@ setupSwagger(app);
 
 // Middleware setup
 app.use(logger("dev"));
-app.use(express.urlencoded({ extended: true })); // Express URL encoded body parser
-// app.use(upload.single('picture')); // Gunakan multer untuk upload file gambar
-// app.use(express.json()); // Tidak perlu karena kamu sudah menggunakan express.urlencoded
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Cors
 const corsOptions = {
@@ -44,7 +44,7 @@ app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
-// app.use("/api/payments", paymentsRouter);
+app.use("/api/payments", routerPayment);
 app.use("/api/tickets", ticketsRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/search", searchRouter);

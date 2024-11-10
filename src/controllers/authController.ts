@@ -152,8 +152,20 @@ export const Register: RequestHandler = async (
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: "Verify Your Email",
-      html: `<p>Hello ${username},</p><p>Please click <a href="${verificationLink}">here</a> to verify your email address.</p>`,
+      subject: "Verifikasi Email Anda",
+      html: `
+        <h1>Hello, Dear ${username},</h1>
+        <p>Kamu telah berhasil membuat akun GoEvent Nih</p>
+        <p>Untuk menyelesaikan verifikasi Akun Kamu, silakan Klik Tombol Di Bawah Ini Ya</p>
+        <p>
+          <a href="${verificationLink}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+            Verifikasi Akun
+          </a>
+        </p>
+        <p>Jika Anda memiliki pertanyaan atau membutuhkan informasi lebih lanjut, silakan hubungi kami di <a href="goevent883@gmail.com">admin goevent</a>.</p>
+        <p>Happy Nice Dream</p>
+        <p>Salam hangat,<br>Management goevent</p>
+      `,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
