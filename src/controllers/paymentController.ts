@@ -42,7 +42,7 @@ export const payment = async (req: Request, res: Response) => {
                 user_id: req.user._id,
                 email: req.user.email,
             },
-            "callback_url": process.env.CALLBACK_MIDTRANS
+            // "callback_url": process.env.CALLBACK_MIDTRANS
         };
 
         const midtransResponse = await snap.createTransaction(transactionParams);
@@ -62,6 +62,7 @@ export const midtransNotification = async (req: Request, res: Response) => {
 
     try {
 
+        console.log(notification)
         const transactionStatus = notification.status_code;
         const orderId = notification.order_id;
 
@@ -84,7 +85,7 @@ export const midtransNotification = async (req: Request, res: Response) => {
         const data = await payment.save();
         // console.log(data)
 
-        res.status(200).json(apiResponse(true, "Status pembayaran berhasil diperbarui", payment));
+        res.status(200).json(apiResponse(true, "Status pembayaran berhasil diperbarui", data));
     } catch (error) {
         res.status(500).json(apiResponse(false, "Terjadi kesalahan saat memproses notifikasi", error));
     }
