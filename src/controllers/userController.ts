@@ -3,6 +3,7 @@ import { Response, Request } from "express";
 import User from "../models/User";
 import dotenv from "dotenv";
 import apiResponse from "../utils/apiResource";
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -163,3 +164,34 @@ export const updateUser = async (req: Request, res: Response) => {
     return res.status(500).json(apiResponse(false, "Erorr Update User", error));
   }
 };
+
+export const updatePassword = async (req: Request, res: Response) => {
+
+  try {
+    const { password, pwbaru, confirmpw } = req.body
+    const userId = req.user.id
+
+    const datapassword = await User.findById(userId);
+
+    if (!datapassword) {
+      return res.status(404).json(apiResponse(false, "User Tidak Di Temukan"))
+    }
+
+    const pw = await bcrypt.compare(password, datapassword.password)
+    if (!pw) {
+      return res.status(404).json(apiResponse(false, 'Paasword Yang Masukan Saat Ini Salah'))
+    }
+
+    if (pwbaru !== confirmpw) {
+      res.status(505).json(apiResponse(false, 'Password Tidak Sama Ulangi !!!'))
+    }
+
+    const hashPw = await bcrypt.hash(pwbaru, 10);
+    datapassword.password = hashPw;
+    await datapassword.save()
+    res.status(200).json(apiResponse(true, 'Berhasil Update Password'))
+
+  } catch (error) {
+    res.status(505).json(apiResponse(false, 'Gagal Update Password', error))
+  }
+}

@@ -4,17 +4,12 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
-import indexRouter from "./routes/index";
 import usersRouter from "./routes/userRoutes";
 import categoriesRouter from "./routes/categoryRoutes";
 import routerEvent from "./routes/eventsRoutes";
 import organizersRouter from "./routes/organizerRoutes";
 import dashboardRouter from "./routes/dashboardRoutes";
-// import paymentsRouter from "./routes/payments";
-import ticketsRouter from "./routes/tickets";
 import authRouter from "./routes/authRoutes";
-import searchRouter from "./routes/searchRoutes";
-import upload from "./middleware/uploadFile";
 import { setupSwagger } from "./config/swagger";
 import routerPayment from "./routes/paymentRoutes";
 
@@ -38,16 +33,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Routes
-app.use("/", indexRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
 app.use("/api/payments", routerPayment);
-app.use("/api/tickets", ticketsRouter);
 app.use("/api/dashboard", dashboardRouter);
-app.use("/api/search", searchRouter);
 
 // Connect Database
 const urlMongo = process.env.MONGODB_URI as string;

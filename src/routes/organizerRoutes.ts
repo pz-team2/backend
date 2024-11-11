@@ -7,6 +7,7 @@ import {
   deleteOrganizer,
 } from "../controllers/organizerController";
 import { LoginOrganizer } from "../controllers/loginOrganizer";
+import { searchEventsByOrganizer } from "../controllers/searchController";
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.get("/:id", getOrganizerById);
 router.put("/:id", updateOrganizer);
 router.delete("/:id", deleteOrganizer);
 router.post("/login", LoginOrganizer);
+router.get("/events/organizer/:organizerId", searchEventsByOrganizer);
 
 export default router;
