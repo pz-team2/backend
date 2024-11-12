@@ -117,3 +117,44 @@ export const hapusEvent = async (req: Request, res: Response) => {
   }
 };
 
+// Get Recent Events
+export const getRecentEvents = async (req: Request, res: Response) => {
+    try {
+        const { limit = 10, page = 1 } = req.query;
+        const skip = (Number(page) - 1) * Number(limit);
+
+        // Get total count for pagination
+        const total = await Event.countDocuments();
+
+        // Get recent events
+        const events = await Event.find()
+            .sort({ createdAt: -1, date: -1 }) // Sort by creation date and event date
+            .skip(skip)
+            .limit(Number(limit))
+            .populate('category', 'name')
+            .populate('organizer', 'organizerName email phoneNumber')
+            .exec();
+
+        const lastPage = Math.ceil(total / Number(limit));
+
+        const response = {
+            data: events,
+            pagination: {
+                total,
+                page: Number(page),
+                lastPage,
+                hasNextPage: Number(page) < lastPage,
+                hasPrevPage: Number(page) > 1
+            }
+        };
+
+        res.status(200).json(
+            apiResponse(true, "Berhasil mendapatkan event terbaru", response)
+        );
+    } catch (error) {
+        res.status(500).json(
+            apiResponse(false, "Gagal mendapatkan event terbaru", error)
+        );
+    }
+};
+
