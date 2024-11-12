@@ -1,4 +1,4 @@
-## CARA MENJALANI PROJECT NYA :
+## CARA MENJALANKAN PROJECT NYA :
 
 ```
 1. npm install
