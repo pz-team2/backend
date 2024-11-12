@@ -12,19 +12,19 @@ export const LoginOrganizer = async (req: Request, res: Response) => {
 
     try {
 
-        const user = await Organizer.findOne({ email });
+        const organizer = await Organizer.findOne({ email });
 
-        if (!user) {
+        if (!organizer) {
             return res.status(400).json(apiResponse(false, 'Email Tidak  Ditemukan'));
         }
 
-        const checkpassword = await bcrypt.compare(password, user.password);
+        const checkpassword = await bcrypt.compare(password, organizer.password);
         if (!checkpassword) {
             return res.status(400).json(apiResponse(false, 'Password Salah '));
         }
 
         // Buat payload dan token JWT
-        const payload = { userId: user.id };
+        const payload = { organizerId: organizer.id };
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
         return res.status(200).json(apiResponse(true, 'Berhasil Login ', { token }));

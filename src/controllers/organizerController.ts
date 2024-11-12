@@ -5,6 +5,8 @@ import bcrypt from 'bcryptjs'
 
 // Mendapatkan semua organizer
 export const getOrganizers = async (req: Request, res: Response) => {
+
+
   try {
     const organizers = await Organizer.find();
     res
@@ -39,6 +41,7 @@ export const getOrganizerById = async (req: Request, res: Response) => {
 
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
+
   const { username, phoneNumber, organizerName, email, password } = req.body;
   try {
 
@@ -100,3 +103,26 @@ export const deleteOrganizer = async (req: Request, res: Response) => {
       .json(apiResponse(false, "Gagal menghapus organizer", error));
   }
 };
+
+export const dataterbaru = async (req: Request, res: Response) => {
+
+  const OrganizerId = req.organizer.id
+  console.log(OrganizerId)
+  res.status(200).json(apiResponse(true, 'data', OrganizerId));
+
+}
+
+
+export const getTerbaru = async (req: Request, res: Response) => {
+
+  try {
+    const organizers = await Organizer.find();
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan organizer", organizers));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan organizer", error));
+  }
+}
