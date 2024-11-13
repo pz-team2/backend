@@ -1,6 +1,14 @@
 import  { Request, Response } from 'express'
 import { Router } from "express";
-import { tambahEvent,ambilEvent,getEventById,updateEvent,hapusEvent,} from "../controllers/eventController";
+import {
+  tambahEvent,
+  ambilEvent,
+  getEventById,
+  updateEvent,
+  hapusEvent,
+  getRecentEvents,
+  getDataEventOrganizer,
+} from "../controllers/eventController";
 import upload from "../middleware/uploadFile";
 import apiResponse from '../utils/apiResource';
 import { searchEvents } from '../controllers/searchController';
@@ -17,6 +25,11 @@ routerEvent.post('/add', upload.single('picture'), tambahEvent, (req: Request, r
 
 routerEvent.get("/list", ambilEvent);
 routerEvent.get("/detail/:id", getEventById);
+
+//menampilkan data berdasarkan terbaru
+routerEvent.get("/recent", getRecentEvents);
+routerEvent.get("/dataterbaru", getDataEventOrganizer);
+
 routerEvent.delete("/delete/:id", hapusEvent);
 routerEvent.get("/events", searchEvents);
 

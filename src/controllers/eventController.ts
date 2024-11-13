@@ -1,37 +1,38 @@
 import { Request, Response } from "express";
-import Event from "../models/Event";
+import Event, {IEvent} from "../models/Event";
 import apiResponse from "../utils/apiResource";
+import Payment from "../models/Payment";
 
 export const tambahEvent = async (req: Request, res: Response) => {
-    try {
+  try {
 
-        if (!req.file) {
-            return res.status(400).json({ message: 'File gambar diperlukan!' });
-        }
-
-        const { title, quota, price, startTime, finishTime, date, address, status, description, organizer, category } = req.body;
-        const picture = req.file.path;
-
-        const newEvent = new Event({
-            title,
-            quota,
-            price,
-            startTime,
-            finishTime,
-            picture,
-            date,
-            address,
-            status,
-            description,
-            category,
-            organizer
-        });
-
-        await newEvent.save();
-        res.status(200).json( apiResponse(true, 'Berhasil Menambahkan Data',{newEvent}));
-    } catch (error) {
-        res.status(500).json(apiResponse(true, 'Berhasil Menambahkan Data',error));
+    if (!req.file) {
+      return res.status(400).json({ message: 'File gambar diperlukan!' });
     }
+
+    const { title, quota, price, startTime, finishTime, date, address, status, description, organizer, category } = req.body;
+    const picture = req.file.path;
+
+    const newEvent = new Event({
+      title,
+      quota,
+      price,
+      startTime,
+      finishTime,
+      picture,
+      date,
+      address,
+      status,
+      description,
+      category,
+      organizer
+    });
+
+    await newEvent.save();
+    res.status(200).json(apiResponse(true, 'Berhasil Menambahkan Data', { newEvent }));
+  } catch (error) {
+    res.status(500).json(apiResponse(true, 'Berhasil Menambahkan Data', error));
+  }
 };
 
 export const ambilEvent = async (req: Request, res: Response) => {
@@ -116,4 +117,87 @@ export const hapusEvent = async (req: Request, res: Response) => {
       .json(apiResponse(false, "Error saat menghapus Event", error));
   }
 };
+
+// Get Recent Events
+export const getRecentEvents = async (req: Request, res: Response) => {
+  try {
+    const { limit = 10, page = 1 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // Get total count for pagination
+    const total = await Event.countDocuments();
+
+    // Get recent events
+    const events = await Event.find()
+      .sort({ createdAt: -1, date: -1 }) // Sort by creation date and event date
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('category', 'name')
+      .populate('organizer', 'organizerName email phoneNumber')
+      .exec();
+
+    const lastPage = Math.ceil(total / Number(limit));
+
+    const response = {
+      data: events,
+      pagination: {
+        total,
+        page: Number(page),
+        lastPage,
+        hasNextPage: Number(page) < lastPage,
+        hasPrevPage: Number(page) > 1
+      }
+    };
+
+    res.status(200).json(
+      apiResponse(true, "Berhasil mendapatkan event terbaru", response)
+    );
+  } catch (error) {
+    res.status(500).json(
+      apiResponse(false, "Gagal mendapatkan event terbaru", error)
+    );
+  }
+};
+
+
+// Tipe Event yang sudah di-populate
+interface PopulatedEvent extends Omit<IEvent, 'organizer'> {
+  organizer: {
+    organizerName: string;
+  };
+}
+
+
+export const getDataEventOrganizer = async (req: Request, res: Response) => {
+  try {
+
+    const events = await Event.find().populate('organizer', 'organizerName');
+
+    const eventData = await Promise.all(events.map(async (event) => {
+      const tiketTerjual = await Payment.aggregate([
+        { $match: { event: event._id, paymentStatus: 'paid' } },
+        { $group: { _id: null, total: { $sum: "$quantity" } } },
+      ]);
+
+      return {
+        id: event._id,
+        title: event.title,
+        picture: event.picture,
+        date: event.date,
+        status: event.status,
+        organizerName: (event.organizer as any)?.organizerName || '',
+        ticketsSold: tiketTerjual[0]?.total || 0,
+      };
+    }));
+
+    // Mengirim respons dengan format yang disederhanakan
+    res.status(200).json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData));
+
+  } catch (error) {
+    res.status(404).json(apiResponse(false, "Gagal mendapatkan event terbaru", error));
+  }
+};
+
+
+
 

@@ -29,7 +29,7 @@ const protect = async (req: Request, res: Response, next: NextFunction): Promise
       req.organizer = await Organizer.findById(decoded.organizerId).select('-password');
 
       if (!req.organizer) {
-        res.status(401).json({ message: 'User not found', decoded });
+        res.status(401).json({ message: 'Organizer Tidak Di tekmukan', decoded });
         return;
       }
 
@@ -39,7 +39,6 @@ const protect = async (req: Request, res: Response, next: NextFunction): Promise
       res.status(401).json({ message: 'Unauthorized, no token' });  // Kirim respons
     }
   } catch (error) {
-    console.error('Error during token verification:', error);
     res.status(401).json({ message: 'Not authorized, token failed' });  // Kirim respons
   }
 };
