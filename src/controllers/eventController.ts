@@ -2,17 +2,20 @@ import { Request, Response } from "express";
 import Event, {IEvent} from "../models/Event";
 import apiResponse from "../utils/apiResource";
 import Payment from "../models/Payment";
+import moment from 'moment-timezone';
 
 export const tambahEvent = async (req: Request, res: Response) => {
   try {
+    const organizerId = req.params.id;
 
     if (!req.file) {
       return res.status(400).json({ message: 'File gambar diperlukan!' });
     }
 
-    const { title, quota, price, startTime, finishTime, date, address, status, description, organizer, category } = req.body;
-    const picture = req.file.path;
-
+    const { title, quota, price, startTime, finishTime, address, status, description, category } = req.body;
+    
+    const jam = moment(req.body.date).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+    const picture = req.file ? req.file.path.replace(/\\/g, "/") : null;
     const newEvent = new Event({
       title,
       quota,
@@ -20,20 +23,25 @@ export const tambahEvent = async (req: Request, res: Response) => {
       startTime,
       finishTime,
       picture,
-      date,
+      date: jam,
       address,
       status,
       description,
       category,
-      organizer
+      organizer: organizerId  // Menyimpan organizerId yang diambil dari parameter URL
     });
 
+    // Menyimpan event baru ke database
     await newEvent.save();
+
+    // Mengirim response sukses
     res.status(200).json(apiResponse(true, 'Berhasil Menambahkan Data', { newEvent }));
   } catch (error) {
-    res.status(500).json(apiResponse(true, 'Berhasil Menambahkan Data', error));
+    // Menangani error dan mengirim response
+    res.status(500).json(apiResponse(false, 'Gagal Menambahkan Data', error));
   }
 };
+
 
 export const ambilEvent = async (req: Request, res: Response) => {
   try {
@@ -171,7 +179,9 @@ interface PopulatedEvent extends Omit<IEvent, 'organizer'> {
 export const getDataEventOrganizer = async (req: Request, res: Response) => {
   try {
 
-    const events = await Event.find().populate('organizer', 'organizerName');
+    const events = await Event.find()
+    .populate('organizer', 'organizerName')
+    .sort({ date: -1 }) 
 
     const eventData = await Promise.all(events.map(async (event) => {
       const tiketTerjual = await Payment.aggregate([
@@ -179,11 +189,13 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
         { $group: { _id: null, total: { $sum: "$quantity" } } },
       ]);
 
+      const jam = moment(event.date).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+
       return {
         id: event._id,
         title: event.title,
         picture: event.picture,
-        date: event.date,
+        date: jam,
         status: event.status,
         organizerName: (event.organizer as any)?.organizerName || '',
         ticketsSold: tiketTerjual[0]?.total || 0,
@@ -197,6 +209,8 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
     res.status(404).json(apiResponse(false, "Gagal mendapatkan event terbaru", error));
   }
 };
+
+
 
 
 

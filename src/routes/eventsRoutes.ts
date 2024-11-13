@@ -15,7 +15,7 @@ import { searchEvents } from '../controllers/searchController';
 
 const routerEvent = Router()
 
-routerEvent.post('/add', upload.single('picture'), tambahEvent, (req: Request, res: Response): void => {
+routerEvent.post('/add/:id', upload.single('picture'), tambahEvent, (req: Request, res: Response): void => {
     if (req.file) {
         res.status(200).json(apiResponse(true, 'File Berhasil DI Upload',  req.file) )
     } else {

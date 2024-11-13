@@ -12,6 +12,7 @@ import dashboardRouter from "./routes/dashboardRoutes";
 import authRouter from "./routes/authRoutes";
 import { setupSwagger } from "./config/swagger";
 import routerPayment from "./routes/paymentRoutes";
+import path from "path";
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use("/api/auth", authRouter);

@@ -3,9 +3,8 @@ import path from 'path';
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: 'uploads/', // Pastikan folder ini ada dan dapat diakses
+    destination: 'uploads', // Pastikan folder ini ada dan dapat diakses
     filename: (req, file, cb) => {
-      // Nama file yang di-upload menggunakan timestamp untuk menghindari duplikasi
       cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
   }),
