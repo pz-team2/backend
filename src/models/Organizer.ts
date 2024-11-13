@@ -5,8 +5,9 @@ export interface IOrganizer extends Document {
   email: string;
   password: string;
   role: string;
-  organizerName: string;
-  phoneNumber: bigint;
+  status?: string;
+  organizerName?: string;
+  phoneNumber?: bigint;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,9 +20,10 @@ const organizerSchema = new Schema<IOrganizer>(
       unique: true,
     },
     email: { type: String, required: true, unique: true },
+    status: { type: String, required: false, default: 'aktif' },
     password: { type: String, required: true },
-    role: { type: String, required: true, default: 'organizer' },
-    organizerName: { type: String, required: true },
+    role: { type: String, required: false, default: 'organizer' },
+    organizerName: { type: String, required: false },
     phoneNumber: { type: Number, required: true },
   },
   {

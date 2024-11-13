@@ -44,12 +44,12 @@ export const getOrganizerById = async (req: Request, res: Response) => {
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
 
-  const { username, phoneNumber, organizerName, email, password } = req.body;
+  const { username, phoneNumber, organizerName, email, password, role } = req.body;
   try {
 
     const hashpassword = await bcrypt.hash(password, 10);
 
-    const newOrganizer = new Organizer({ username, phoneNumber, organizerName, email, password: hashpassword });
+    const newOrganizer = new Organizer({ username, phoneNumber, organizerName, email, password: hashpassword, role });
     await newOrganizer.save();
     res
       .status(201)

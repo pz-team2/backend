@@ -23,11 +23,12 @@ export const LoginOrganizer = async (req: Request, res: Response) => {
             return res.status(400).json(apiResponse(false, 'Password Salah '));
         }
 
+        const {role} = organizer
         // Buat payload dan token JWT
         const payload = { organizerId: organizer.id };
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
-        return res.status(200).json(apiResponse(true, 'Berhasil Login ', { token }));
+        return res.status(200).json(apiResponse(true, 'Berhasil Login ', { token, role }));
     } catch (error) {
         return res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Login'));
     }
