@@ -3,6 +3,7 @@ import Event, {IEvent} from "../models/Event";
 import apiResponse from "../utils/apiResource";
 import Payment from "../models/Payment";
 import moment from 'moment-timezone';
+const sanitizeHtml = require('sanitize-html');
 
 export const tambahEvent = async (req: Request, res: Response) => {
   try {
@@ -12,7 +13,16 @@ export const tambahEvent = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'File gambar diperlukan!' });
     }
 
+
+
     const { title, quota, price, startTime, finishTime, address, status, description, category } = req.body;
+
+    const sanitizedContent = sanitizeHtml(description, {
+      allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'blockquote', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ],
+      allowedAttributes: {
+        'a': [ 'href', 'target' ]
+      },
+    });
     
     const jam = moment(req.body.date).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
     const picture = req.file ? req.file.path.replace(/\\/g, "/") : null;
@@ -26,16 +36,16 @@ export const tambahEvent = async (req: Request, res: Response) => {
       date: jam,
       address,
       status,
-      description,
+      description: sanitizedContent,
       category,
-      organizer: organizerId  // Menyimpan organizerId yang diambil dari parameter URL
+      organizer: organizerId
     });
 
     // Menyimpan event baru ke database
     await newEvent.save();
 
     // Mengirim response sukses
-    res.status(200).json(apiResponse(true, 'Berhasil Menambahkan Data', { newEvent }));
+    res.status(200).json(apiResponse(true, 'Berhasil Menambahkan Data',  newEvent));
   } catch (error) {
     // Menangani error dan mengirim response
     res.status(500).json(apiResponse(false, 'Gagal Menambahkan Data', error));

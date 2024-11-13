@@ -14,7 +14,7 @@ declare global {
   }
 }
 
-const protect = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+const protectOragnizer = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   let token: string | undefined;
 
   try {
@@ -43,4 +43,4 @@ const protect = async (req: Request, res: Response, next: NextFunction): Promise
   }
 };
 
-export { protect };
+export { protectOragnizer };

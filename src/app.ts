@@ -13,6 +13,8 @@ import authRouter from "./routes/authRoutes";
 import { setupSwagger } from "./config/swagger";
 import routerPayment from "./routes/paymentRoutes";
 import path from "path";
+import { protect } from "./middleware/authMiddleware";
+import { protectOragnizer } from "./middleware/middlewareOrganizer";
 
 dotenv.config();
 
@@ -36,8 +38,8 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use("/api/auth", authRouter);
-app.use("/api/users", usersRouter);
-app.use("/api/categories", categoriesRouter);
+app.use("/api/users",protect, usersRouter);
+app.use("/api/categories",categoriesRouter);
 app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);
 app.use("/api/payments", routerPayment);
