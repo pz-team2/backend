@@ -1,30 +1,58 @@
 import { Request, Response } from "express";
-import Event, {IEvent} from "../models/Event";
+import Event, { IEvent } from "../models/Event";
 import apiResponse from "../utils/apiResource";
 import Payment from "../models/Payment";
-import moment from 'moment-timezone';
-const sanitizeHtml = require('sanitize-html');
+import moment from "moment-timezone";
+const sanitizeHtml = require("sanitize-html");
 
 export const tambahEvent = async (req: Request, res: Response) => {
   try {
     const organizerId = req.params.id;
 
     if (!req.file) {
-      return res.status(400).json({ message: 'File gambar diperlukan!' });
+      return res.status(400).json({ message: "File gambar diperlukan!" });
     }
 
-
-
-    const { title, quota, price, startTime, finishTime, address, status, description, category } = req.body;
+    const {
+      title,
+      quota,
+      price,
+      startTime,
+      finishTime,
+      address,
+      status,
+      description,
+      category,
+    } = req.body;
 
     const sanitizedContent = sanitizeHtml(description, {
-      allowedTags: [ 'b', 'i', 'em', 'strong', 'a', 'ul', 'ol', 'li', 'blockquote', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ],
+      allowedTags: [
+        "b",
+        "i",
+        "em",
+        "strong",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "blockquote",
+        "p",
+        "br",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+      ],
       allowedAttributes: {
-        'a': [ 'href', 'target' ]
+        a: ["href", "target"],
       },
     });
-    
-    const jam = moment(req.body.date).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+
+    const jam = moment(req.body.date)
+      .tz("Asia/Jakarta")
+      .format("YYYY-MM-DD HH:mm:ss");
     const picture = req.file ? req.file.path.replace(/\\/g, "/") : null;
     const newEvent = new Event({
       title,
@@ -38,20 +66,21 @@ export const tambahEvent = async (req: Request, res: Response) => {
       status,
       description: sanitizedContent,
       category,
-      organizer: organizerId
+      organizer: organizerId,
     });
 
     // Menyimpan event baru ke database
     await newEvent.save();
 
     // Mengirim response sukses
-    res.status(200).json(apiResponse(true, 'Berhasil Menambahkan Data',  newEvent));
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil Menambahkan Data", newEvent));
   } catch (error) {
     // Menangani error dan mengirim response
-    res.status(500).json(apiResponse(false, 'Gagal Menambahkan Data', error));
+    res.status(500).json(apiResponse(false, "Gagal Menambahkan Data", error));
   }
 };
-
 
 export const ambilEvent = async (req: Request, res: Response) => {
   try {
@@ -150,8 +179,8 @@ export const getRecentEvents = async (req: Request, res: Response) => {
       .sort({ createdAt: -1, date: -1 }) // Sort by creation date and event date
       .skip(skip)
       .limit(Number(limit))
-      .populate('category', 'name')
-      .populate('organizer', 'organizerName email phoneNumber')
+      .populate("category", "name")
+      .populate("organizer", "organizerName email phoneNumber")
       .exec();
 
     const lastPage = Math.ceil(total / Number(limit));
@@ -163,65 +192,128 @@ export const getRecentEvents = async (req: Request, res: Response) => {
         page: Number(page),
         lastPage,
         hasNextPage: Number(page) < lastPage,
-        hasPrevPage: Number(page) > 1
-      }
+        hasPrevPage: Number(page) > 1,
+      },
     };
 
-    res.status(200).json(
-      apiResponse(true, "Berhasil mendapatkan event terbaru", response)
-    );
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", response));
   } catch (error) {
-    res.status(500).json(
-      apiResponse(false, "Gagal mendapatkan event terbaru", error)
-    );
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan event terbaru", error));
   }
 };
 
-
 // Tipe Event yang sudah di-populate
-interface PopulatedEvent extends Omit<IEvent, 'organizer'> {
+interface PopulatedEvent extends Omit<IEvent, "organizer"> {
   organizer: {
     organizerName: string;
   };
 }
 
-
 export const getDataEventOrganizer = async (req: Request, res: Response) => {
   try {
-
     const events = await Event.find()
-    .populate('organizer', 'organizerName')
-    .sort({ date: -1 }) 
+      .populate("organizer", "organizerName")
+      .sort({ date: -1 });
 
-    const eventData = await Promise.all(events.map(async (event) => {
-      const tiketTerjual = await Payment.aggregate([
-        { $match: { event: event._id, paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: "$quantity" } } },
-      ]);
+    const eventData = await Promise.all(
+      events.map(async (event) => {
+        const tiketTerjual = await Payment.aggregate([
+          { $match: { event: event._id, paymentStatus: "paid" } },
+          { $group: { _id: null, total: { $sum: "$quantity" } } },
+        ]);
 
-      const jam = moment(event.date).tz('Asia/Jakarta').format('YYYY-MM-DD HH:mm:ss');
+        const jam = moment(event.date)
+          .tz("Asia/Jakarta")
+          .format("YYYY-MM-DD HH:mm:ss");
 
-      return {
-        id: event._id,
-        title: event.title,
-        picture: event.picture,
-        date: jam,
-        status: event.status,
-        organizerName: (event.organizer as any)?.organizerName || '',
-        ticketsSold: tiketTerjual[0]?.total || 0,
-      };
-    }));
+        return {
+          id: event._id,
+          title: event.title,
+          picture: event.picture,
+          date: jam,
+          status: event.status,
+          organizerName: (event.organizer as any)?.organizerName || "",
+          ticketsSold: tiketTerjual[0]?.total || 0,
+        };
+      })
+    );
 
     // Mengirim respons dengan format yang disederhanakan
-    res.status(200).json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData));
-
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData));
   } catch (error) {
-    res.status(404).json(apiResponse(false, "Gagal mendapatkan event terbaru", error));
+    res
+      .status(404)
+      .json(apiResponse(false, "Gagal mendapatkan event terbaru", error));
   }
 };
 
+// Menampilkan Event Berdasarkan Penghasilan
+export const getEventsByRevenue = async (req: Request, res: Response) => {
+  try {
+    const events = await Event.find()
+      .populate("organizer", "organizerName")
+      .sort({ date: -1 });
 
+    const eventData = await Promise.all(
+      events.map(async (event) => {
+        // Menghitung tiket terjual dan total penghasilan (revenue) untuk setiap event
+        const revenueData = await Payment.aggregate([
+          { $match: { event: event._id, paymentStatus: "paid" } },
+          {
+            $group: {
+              _id: null,
+              totalRevenue: { $sum: "$amount" },
+              totalTicketsSold: { $sum: "$quantity" },
+            },
+          },
+        ]);
 
+        const jam = moment(event.date)
+          .tz("Asia/Jakarta")
+          .format("YYYY-MM-DD HH:mm:ss");
 
+        return {
+          id: event._id,
+          title: event.title,
+          picture: event.picture,
+          date: jam,
+          status: event.status,
+          organizerName: (event.organizer as any)?.organizerName || "",
+          ticketsSold: revenueData[0]?.totalTicketsSold || 0,
+          revenue: revenueData[0]?.totalRevenue || 0,
+        };
+      })
+    );
 
+    // Mengurutkan event berdasarkan penghasilan (revenue) tertinggi
+    eventData.sort((a, b) => b.revenue - a.revenue);
 
+    res
+      .status(200)
+      .json(
+        apiResponse(
+          true,
+          "Berhasil mendapatkan event berdasarkan penghasilan",
+          eventData
+        )
+      );
+  } catch (error) {
+    res
+      .status(500)
+      .json(
+        apiResponse(
+          false,
+          "Gagal mendapatkan event berdasarkan penghasilan",
+          error
+        )
+      );
+  }
+};
+
+//

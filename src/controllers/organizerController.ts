@@ -2,13 +2,11 @@ import { Request, Response } from "express";
 import Organizer from "../models/Organizer";
 import apiResponse from "../utils/apiResource";
 import Event from "../models/Event";
-import bcrypt from 'bcryptjs'
+import bcrypt from "bcryptjs";
 import { SortOrder } from "mongoose";
 
 // Mendapatkan semua organizer
 export const getOrganizers = async (req: Request, res: Response) => {
-
-
   try {
     const organizers = await Organizer.find();
     res
@@ -43,13 +41,19 @@ export const getOrganizerById = async (req: Request, res: Response) => {
 
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
-
-  const { username, phoneNumber, organizerName, email, password, role } = req.body;
+  const { username, phoneNumber, organizerName, email, password, role } =
+    req.body;
   try {
-
     const hashpassword = await bcrypt.hash(password, 10);
 
-    const newOrganizer = new Organizer({ username, phoneNumber, organizerName, email, password: hashpassword, role });
+    const newOrganizer = new Organizer({
+      username,
+      phoneNumber,
+      organizerName,
+      email,
+      password: hashpassword,
+      role,
+    });
     await newOrganizer.save();
     res
       .status(201)
@@ -126,7 +130,6 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
     let query: any = { organizer: organizerId };
     console.log("Query:", query);
 
-
     // Status filter
     if (status) {
       query.status = status;
@@ -165,7 +168,7 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
       .populate("organizer", "organizerName email phoneNumber")
       .exec();
 
-      console.log("Found events:", events);
+    console.log("Found events:", events);
 
     const lastPage = Math.ceil(total / Number(limit));
 
@@ -227,7 +230,6 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 // export const getOrganizerDashboard = async (req: Request, res: Response) => {
 //     try {
 //         const organizerId = req.params.organizerId;
-        
 
 //         // Get upcoming events (next 7 days)
 //         const nextWeek = new Date();
@@ -305,4 +307,4 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 //             apiResponse(false, "Gagal mendapatkan dashboard organizer", error)
 //         );
 //     }
-// }; 
+// };

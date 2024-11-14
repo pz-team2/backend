@@ -1,4 +1,4 @@
-import  { Request, Response } from 'express'
+import { Request, Response } from "express";
 import { Router } from "express";
 import {
   tambahEvent,
@@ -8,32 +8,19 @@ import {
   hapusEvent,
   getRecentEvents,
   getDataEventOrganizer,
+  getEventsByRevenue,
 } from "../controllers/eventController";
 import upload from "../middleware/uploadFile";
-import apiResponse from '../utils/apiResource';
-import { searchEvents } from '../controllers/searchController';
+import apiResponse from "../utils/apiResource";
+import { searchEvents } from "../controllers/searchController";
 
-const routerEvent = Router()
+const routerEvent = Router();
 
-routerEvent.post('/add/:id', upload.single('picture'), tambahEvent, (req: Request, res: Response): void => {
-    if (req.file) {
-        res.status(200).json(apiResponse(true, 'File Berhasil DI Upload',  req.file) )
-    } else {
-        res.status(400).json(apiResponse(false, 'File Gagal Di Upload'))
-    }
-})
-
-routerEvent.get("/list", ambilEvent);
-routerEvent.get("/detail/:id", getEventById);
-
-//menampilkan data berdasarkan terbaru
-routerEvent.get("/recent", getRecentEvents);
-routerEvent.get("/dataterbaru", getDataEventOrganizer);
-
-routerEvent.delete("/delete/:id", hapusEvent);
-routerEvent.get("/events", searchEvents);
-
-routerEvent.put( "/update/:id", upload.single("picture"), updateEvent, (req: Request, res: Response): void => {
+routerEvent.post(
+  "/add/:id",
+  upload.single("picture"),
+  tambahEvent,
+  (req: Request, res: Response): void => {
     if (req.file) {
       res
         .status(200)
@@ -44,5 +31,32 @@ routerEvent.put( "/update/:id", upload.single("picture"), updateEvent, (req: Req
   }
 );
 
+routerEvent.get("/list", ambilEvent);
+routerEvent.get("/detail/:id", getEventById);
 
-export default routerEvent
+//menampilkan data berdasarkan terbaru
+routerEvent.get("/recent", getRecentEvents);
+routerEvent.get("/dataterbaru", getDataEventOrganizer);
+
+// Menampilkan Event Berdasarkan Penghasilan
+routerEvent.get("/event-by-revenue", getEventsByRevenue);
+
+routerEvent.delete("/delete/:id", hapusEvent);
+routerEvent.get("/events", searchEvents);
+
+routerEvent.put(
+  "/update/:id",
+  upload.single("picture"),
+  updateEvent,
+  (req: Request, res: Response): void => {
+    if (req.file) {
+      res
+        .status(200)
+        .json(apiResponse(true, "File Berhasil DI Upload", req.file));
+    } else {
+      res.status(400).json(apiResponse(false, "File Gagal Di Upload"));
+    }
+  }
+);
+
+export default routerEvent;
