@@ -1,18 +1,23 @@
-  import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-  export interface ITicket extends Document {
-    seatNumber: string;
-    event: mongoose.Types.ObjectId;
-    user: mongoose.Types.ObjectId;
-    purchasedDate: Date;
-  }
+export interface ITicket extends Document {
+  name: string;
+  code: string;
+  payment: mongoose.Types.ObjectId;
+  qrcode: String;
+  status: string;
+}
 
-  const ticketSchema: Schema<ITicket> = new Schema({
-    seatNumber: { type: String, required: true },
-    event: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    purchasedDate: { type: Date, required: true },
-  });
+const ticketSchema: Schema<ITicket> = new Schema(
+  {
+    name: { type: String, required: true },
+    code: { type: String, required: true },
+    payment: { type: Schema.Types.ObjectId, ref: "Payment", required: true },
+    qrcode: { type: String, required: true },
+    status: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-  const Ticket: Model<ITicket> = mongoose.model<ITicket>('Ticket', ticketSchema);
-  export default Ticket;
+const Ticket: Model<ITicket> = mongoose.model<ITicket>("Ticket", ticketSchema);
+export default Ticket;
