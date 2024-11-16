@@ -9,6 +9,7 @@ import {
   getRecentEvents,
   getDataEventOrganizer,
   getEventsByRevenue,
+  getEventsByOrganizer,
 } from "../controllers/eventController";
 import upload from "../middleware/uploadFile";
 import apiResponse from "../utils/apiResource";
@@ -37,6 +38,7 @@ routerEvent.get("/detail/:id", getEventById);
 //menampilkan data berdasarkan terbaru
 routerEvent.get("/recent", getRecentEvents);
 routerEvent.get("/dataterbaru", getDataEventOrganizer);
+routerEvent.get("/listevent/:organizerId", getEventsByOrganizer);
 
 // Menampilkan Event Berdasarkan Penghasilan
 routerEvent.get("/event-by-revenue", getEventsByRevenue);

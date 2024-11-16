@@ -3,6 +3,7 @@ import Event, { IEvent } from "../models/Event";
 import apiResponse from "../utils/apiResource";
 import Payment from "../models/Payment";
 import moment from "moment-timezone";
+import { SortOrder } from "mongoose";
 const sanitizeHtml = require("sanitize-html");
 
 export const tambahEvent = async (req: Request, res: Response) => {
@@ -119,7 +120,6 @@ export const updateEvent = async (req: Request, res: Response) => {
       address,
       status,
       description,
-      organizer,
       category,
     } = req.body;
     let picture = req.file?.path;
@@ -138,7 +138,6 @@ export const updateEvent = async (req: Request, res: Response) => {
     event.address = address;
     event.status = status;
     event.description = description;
-    event.organizer = organizer;
     event.category = category;
     if (picture) {
       event.picture = picture;
@@ -147,6 +146,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     await event.save();
     res.status(200).json(apiResponse(true, "Event berhasil diperbarui", event));
   } catch (error) {
+    console.log(error)
     res.status(500).json(apiResponse(false, "Error memperbarui Event", error));
   }
 };
@@ -313,6 +313,122 @@ export const getEventsByRevenue = async (req: Request, res: Response) => {
           error
         )
       );
+  }
+};
+
+export const getEventsByOrganizer = async (req: Request, res: Response) => {
+  try {
+    const organizerId = req.params.organizerId;
+    console.log("Searching for organizerId:", organizerId);
+
+    const {
+      status,
+      startDate,
+      endDate,
+      sortBy = "date",
+      sortOrder = "desc",
+      page = 1,
+      limit = 6,
+      category,
+    } = req.query;
+
+    // Build query
+    let query: any = { organizer: organizerId };
+    console.log("Query:", query);
+
+    // Status filter
+    if (status) {
+      query.status = status;
+    }
+
+    // Date range filter
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) query.date.$gte = new Date(startDate as string);
+      if (endDate) query.date.$lte = new Date(endDate as string);
+    }
+
+    // Category filter
+    if (category) {
+      query.category = category;
+    }
+
+    // Calculate skip for pagination
+    const skip = (Number(page) - 1) * Number(limit);
+
+    // Get total count for pagination
+    const total = await Event.countDocuments(query);
+
+    // Prepare sort object with proper typing
+    const sortDirection: SortOrder = sortOrder === "desc" ? -1 : 1;
+    const sortOptions: { [key: string]: SortOrder } = {
+      [sortBy as string]: sortDirection,
+    };
+
+    // Get events with properly typed sort
+    const events = await Event.find(query)
+      .sort(sortOptions)
+      .skip(skip)
+      .limit(Number(limit))
+      .populate("category", "name")
+      .populate("organizer", "organizerName email phoneNumber")
+      .exec();
+
+    console.log("Found events:", events);
+
+    const lastPage = Math.ceil(total / Number(limit));
+
+    // Get statistics for the organizer
+    // const statistics = await Event.aggregate([
+    //   { $match: { organizer: organizerId } },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       totalEvents: { $sum: 1 },
+    //       activeEvents: {
+    //         $sum: {
+    //           $cond: [{ $eq: ["$status", "active"] }, 1, 0],
+    //         },
+    //       },
+    //       completedEvents: {
+    //         $sum: {
+    //           $cond: [{ $eq: ["$status", "completed"] }, 1, 0],
+    //         },
+    //       },
+    //       averagePrice: { $avg: "$price" },
+    //       totalQuota: { $sum: "$quota" },
+    //     },
+    //   },
+    // ]);
+    // console.log("Statistics result:", statistics);
+
+    const response = {
+      data: events,
+      // statistics: statistics[0] || {
+      //   totalEvents: 0,
+      //   activeEvents: 0,
+      //   completedEvents: 0,
+      //   averagePrice: 0,
+      //   totalQuota: 0,
+      // },
+      pagination: {
+        total,
+        page: Number(page),
+        lastPage,
+        hasNextPage: Number(page) < lastPage,
+        hasPrevPage: Number(page) > 1,
+      },
+    };
+
+    res
+      .status(200)
+      .json(
+        apiResponse(true, "Berhasil mendapatkan event organizer", response)
+      );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan event organizer", error));
   }
 };
 

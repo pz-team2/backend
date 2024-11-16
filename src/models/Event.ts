@@ -2,14 +2,14 @@ import mongoose, { Document, Schema, Model } from 'mongoose';
 
 // Definisikan interface untuk Event
 export interface IEvent extends Document {
-  organizerId: string;
+  // organizerId: string;
   categoryId: string;
   title: string;
   quota: number;
   price: number;
   startTime: string;
   finishTime: string;
-  picture: string;
+  picture?: string;
   date: Date;
   address: string;
   description: string;
@@ -28,7 +28,7 @@ const eventSchema: Schema<IEvent> = new Schema({
   description: { type: String, required: true },
   status: { type: String, required: true },
   quota: { type: Number, required: true },
-  price: { type: Number, required: true },
+  price: { type: Number, required: false },
   startTime: { type: String, required: true },
   finishTime: { type: String, required: true },
   picture: { type: String, required: true }
