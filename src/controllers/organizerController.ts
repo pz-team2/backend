@@ -92,6 +92,32 @@ export const updateOrganizer = async (req: Request, res: Response) => {
   }
 };
 
+export const updateOrganizerById = async (req: Request, res: Response) => {
+  const organizerId = req.organizer.id;
+  const { username, phoneNumber, organizerName, email } = req.body;
+  try {
+    const updatedOrganizer = await Organizer.findByIdAndUpdate(
+      organizerId,
+      { username, phoneNumber, organizerName, email },
+      { new: true }
+    );
+    if (!updatedOrganizer) {
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer tidak ditemukan"));
+    }
+    res
+      .status(200)
+      .json(
+        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer)
+      );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal memperbarui organizer", error));
+  }
+};
+
 // Menghapus organizer
 export const deleteOrganizer = async (req: Request, res: Response) => {
   const organizerId = req.params.id;

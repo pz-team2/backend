@@ -75,7 +75,7 @@ export const getUsers = async (req: Request, res: Response) => {
  *         description: Error retrieving user data
  */
 export const getUserById = async (req: Request, res: Response) => {
-  const userId = req.params.id;
+  const userId = req.user.id;
 
   try {
     const user = await User.findById(userId);
@@ -137,7 +137,7 @@ export const getUserById = async (req: Request, res: Response) => {
  *         description: Error updating user data
  */
 export const updateUser = async (req: Request, res: Response) => {
-  const userId = req.params.id; // Ambil id user dari parameter URL
+  const userId = req.user.id; // Ambil id user dari parameter URL
   const { username, email, fullName, gender, phoneNumber, city } = req.body;
 
   try {
@@ -170,6 +170,7 @@ export const updatePassword = async (req: Request, res: Response) => {
   try {
     const { password, pwbaru, confirmpw } = req.body
     const userId = req.user.id
+    console.log(userId)
 
     const datapassword = await User.findById(userId);
 
@@ -192,6 +193,7 @@ export const updatePassword = async (req: Request, res: Response) => {
     res.status(200).json(apiResponse(true, 'Berhasil Update Password'))
 
   } catch (error) {
+    console.log(error)
     res.status(505).json(apiResponse(false, 'Gagal Update Password', error))
   }
 }

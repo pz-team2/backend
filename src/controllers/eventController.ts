@@ -27,8 +27,7 @@ export const tambahEvent = async (req: Request, res: Response) => {
     } = req.body;
 
     const sanitizedContent = sanitizeHtml(description, {
-      allowedTags: [
-        "b",
+      allowedTags: ["b",
         "i",
         "em",
         "strong",
@@ -96,7 +95,10 @@ export const ambilEvent = async (req: Request, res: Response) => {
 
 export const getEventById = async (req: Request, res: Response) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id)
+      // .populate("category", "name")
+      // .populate("organizer", "organizerName email phoneNumber")
+
     if (!event) {
       return res.status(404).json(apiResponse(false, "Event tidak ditemukan"));
     }
