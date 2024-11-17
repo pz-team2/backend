@@ -6,6 +6,7 @@ import {
   updateOrganizer,
   deleteOrganizer,
   getEventsByOrganizer,
+  getOrganizerStats,
 } from "../controllers/organizerController";
 import { LoginOrganizer } from "../controllers/loginOrganizer";
 import { searchEventsByOrganizer } from "../controllers/searchController";
@@ -22,9 +23,8 @@ router.delete("/delete/:id", deleteOrganizer);
 router.get("/events/organizer/:organizerId", searchEventsByOrganizer);
 
 router.get("/organizer/:organizerId", getEventsByOrganizer);
-// router.get(
-//   "/organizer/:organizerId/dashboard",
-//   getOrganizerDashboard
-// );
+
+// Get Organizer Dashboard Stats
+router.get("/organizer-stats", protectOragnizer, getOrganizerStats);
 
 export default router;
