@@ -10,6 +10,7 @@ import {
   getDataEventOrganizer,
   getEventsByRevenue,
   getEventsByOrganizer,
+  getEventStats,
 } from "../controllers/eventController";
 import upload from "../middleware/uploadFile";
 import apiResponse from "../utils/apiResource";
@@ -42,6 +43,9 @@ routerEvent.get("/listevent/:organizerId", getEventsByOrganizer);
 
 // Menampilkan Event Berdasarkan Penghasilan
 routerEvent.get("/event-by-revenue", getEventsByRevenue);
+
+// Get Event Stats
+routerEvent.get("/events-stats/:id", getEventStats);
 
 routerEvent.delete("/delete/:id", hapusEvent);
 routerEvent.get("/events", searchEvents);

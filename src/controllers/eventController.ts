@@ -146,7 +146,7 @@ export const updateEvent = async (req: Request, res: Response) => {
     await event.save();
     res.status(200).json(apiResponse(true, "Event berhasil diperbarui", event));
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json(apiResponse(false, "Error memperbarui Event", error));
   }
 };
@@ -432,4 +432,48 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
   }
 };
 
-//
+// Event Stats
+export const getEventStats = async (req: Request, res: Response) => {
+  try {
+    const eventId = req.params.id;
+
+    const event = await Event.findById(eventId)
+      .populate("organizer", "organizerName")
+      .populate("category", "name");
+
+    if (!event) {
+      return res.status(404).json(apiResponse(false, "Event tidak ditemukan"));
+    }
+
+    // Penghasilan
+    const revenueData = await Payment.aggregate([
+      { $match: { event: event._id, paymentStatus: "paid" } },
+      { $group: { _id: null, totalRevenue: { $sum: "$amount" } } },
+    ]);
+    const totalRevenue = revenueData[0]?.totalRevenue || 0;
+
+    // Tiket Terjual
+    const ticketsSoldData = await Payment.aggregate([
+      { $match: { event: event._id, paymentStatus: "paid" } },
+      { $group: { _id: null, total: { $sum: "$quantity" } } },
+    ]);
+    const ticketsSold = ticketsSoldData[0]?.total || 0;
+
+    //  Tiket Tersisa
+    const ticketsRemaining = event.quota - ticketsSold;
+
+    res.status(200).json(
+      apiResponse(true, "Berhasil mendapatkan detail event", {
+        stats: {
+          totalRevenue,
+          ticketsSold,
+          ticketsRemaining,
+        },
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan detail event", error));
+  }
+};

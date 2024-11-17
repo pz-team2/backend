@@ -311,12 +311,11 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 //     }
 // };
 
-// Get Organizer Dashboard Summary
+// Get Organizer Stats
 export const getOrganizerStats = async (req: Request, res: Response) => {
   try {
     const organizerId = req.organizer._id; // ID organizer dari middleware
 
-    // Ambil data event yang terkait dengan organizer
     const events = await Event.find({ organizer: organizerId });
 
     if (!events || events.length === 0) {
@@ -327,7 +326,6 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
         );
     }
 
-    // Hitung penghasilan, jumlah transaksi, dan tiket terjual
     const stats = await Payment.aggregate([
       {
         $match: {
