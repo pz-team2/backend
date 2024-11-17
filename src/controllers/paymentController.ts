@@ -166,3 +166,39 @@ export const deleteAllPayments = async (req: Request, res: Response) => {
     res.status(500).json(apiResponse(false, "Error deleting payments", error));
   }
 };
+
+export const getUserTransactionHistory = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = req.user._id;
+
+    const transactions = await Payment.find({ user: userId })
+      .populate({
+        path: "event",
+        select: "title date address",
+      })
+      .sort({ createdAt: -1 });
+
+    if (!transactions.length) {
+      return res
+        .status(404)
+        .json(apiResponse(false, "Tidak ada transaksi ditemukan"));
+    }
+
+    res
+      .status(200)
+      .json(
+        apiResponse(
+          true,
+          "Berhasil mendapatkan histori transaksi",
+          transactions
+        )
+      );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan histori transaksi", error));
+  }
+};

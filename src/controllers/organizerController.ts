@@ -2,8 +2,10 @@ import { Request, Response } from "express";
 import Organizer from "../models/Organizer";
 import apiResponse from "../utils/apiResource";
 import Event from "../models/Event";
+import Payment from "../models/Payment";
 import bcrypt from "bcryptjs";
 import { SortOrder } from "mongoose";
+import moment from "moment-timezone";
 
 // Mendapatkan semua organizer
 export const getOrganizers = async (req: Request, res: Response) => {
@@ -334,3 +336,55 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 //         );
 //     }
 // };
+
+// Get Organizer Stats
+export const getOrganizerStats = async (req: Request, res: Response) => {
+  try {
+    const organizerId = req.organizer._id; // ID organizer dari middleware
+
+    const events = await Event.find({ organizer: organizerId });
+
+    if (!events || events.length === 0) {
+      return res
+        .status(404)
+        .json(
+          apiResponse(false, "Tidak ada event terkait dengan organizer ini")
+        );
+    }
+
+    const stats = await Payment.aggregate([
+      {
+        $match: {
+          event: { $in: events.map((event) => event._id) },
+          paymentStatus: "paid",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+          totalTransactions: { $sum: 1 },
+          totalTicketsSold: { $sum: "$quantity" },
+        },
+      },
+    ]);
+
+    const result = stats[0] || {
+      totalRevenue: 0,
+      totalTransactions: 0,
+      totalTicketsSold: 0,
+    };
+
+    res.status(200).json(
+      apiResponse(true, "Berhasil mendapatkan data dashboard", {
+        revenue: result.totalRevenue,
+        transactions: result.totalTransactions,
+        ticketsSold: result.totalTicketsSold,
+      })
+    );
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal mendapatkan data dashboard", error));
+  }
+};
