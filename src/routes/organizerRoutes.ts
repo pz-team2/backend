@@ -8,6 +8,7 @@ import {
   getEventsByOrganizer,
   getOrganizerStats,
   updateOrganizerById,
+  updatepassword,
 } from "../controllers/organizerController";
 import { LoginOrganizer } from "../controllers/loginOrganizer";
 import { searchEventsByOrganizer } from "../controllers/searchController";
@@ -21,6 +22,7 @@ router.post("/add", createOrganizer);
 router.get("/detail/:id", getOrganizerById);
 router.put("/update/:id", updateOrganizer);
 router.put("/updateprofile", updateOrganizerById);
+router.put("/updatepassword", updatepassword);
 router.delete("/delete/:id", deleteOrganizer);
 router.get("/events/organizer/:organizerId", searchEventsByOrganizer);
 

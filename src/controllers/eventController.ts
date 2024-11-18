@@ -82,7 +82,7 @@ export const tambahEvent = async (req: Request, res: Response) => {
   }
 };
 
-export const ambilEvent = async (req: Request, res: Response) => {
+export const getEvent = async (req: Request, res: Response) => {
   try {
     const events = await Event.find();
     res.status(200).json(apiResponse(true, "Event berhasil diambil", events));
@@ -96,8 +96,8 @@ export const ambilEvent = async (req: Request, res: Response) => {
 export const getEventById = async (req: Request, res: Response) => {
   try {
     const event = await Event.findById(req.params.id)
-      // .populate("category", "name")
-      // .populate("organizer", "organizerName email phoneNumber")
+      .populate("category", "name")
+      .populate("organizer", "organizerName")
 
     if (!event) {
       return res.status(404).json(apiResponse(false, "Event tidak ditemukan"));
@@ -106,7 +106,7 @@ export const getEventById = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Error saat mengambil Event", error));
+      .json(apiResponse(false, "Error saat mengambil Event"));
   }
 };
 
@@ -379,40 +379,8 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
     console.log("Found events:", events);
 
     const lastPage = Math.ceil(total / Number(limit));
-
-    // Get statistics for the organizer
-    // const statistics = await Event.aggregate([
-    //   { $match: { organizer: organizerId } },
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       totalEvents: { $sum: 1 },
-    //       activeEvents: {
-    //         $sum: {
-    //           $cond: [{ $eq: ["$status", "active"] }, 1, 0],
-    //         },
-    //       },
-    //       completedEvents: {
-    //         $sum: {
-    //           $cond: [{ $eq: ["$status", "completed"] }, 1, 0],
-    //         },
-    //       },
-    //       averagePrice: { $avg: "$price" },
-    //       totalQuota: { $sum: "$quota" },
-    //     },
-    //   },
-    // ]);
-    // console.log("Statistics result:", statistics);
-
     const response = {
       data: events,
-      // statistics: statistics[0] || {
-      //   totalEvents: 0,
-      //   activeEvents: 0,
-      //   completedEvents: 0,
-      //   averagePrice: 0,
-      //   totalQuota: 0,
-      // },
       pagination: {
         total,
         page: Number(page),

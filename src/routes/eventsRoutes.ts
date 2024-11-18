@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { Router } from "express";
 import {
   tambahEvent,
-  ambilEvent,
   getEventById,
   updateEvent,
   hapusEvent,
@@ -11,6 +10,7 @@ import {
   getEventsByRevenue,
   getEventsByOrganizer,
   getEventStats,
+  getEvent,
 } from "../controllers/eventController";
 import upload from "../middleware/uploadFile";
 import apiResponse from "../utils/apiResource";
@@ -33,7 +33,7 @@ routerEvent.post(
   }
 );
 
-routerEvent.get("/list", ambilEvent);
+routerEvent.get("/list", getEvent);
 routerEvent.get("/detail/:id", getEventById);
 
 //menampilkan data berdasarkan terbaru
