@@ -96,36 +96,39 @@ export const updateOrganizer = async (req: Request, res: Response) => {
 
 export const updatepassword = async (req: Request, res: Response) => {
   try {
-    const { password, pwbaru, confirmpw } = req.body
-    const organizerId = req.organizer.id
-    console.log(organizerId)
+    const { password, pwbaru, confirmpw } = req.body;
+    const organizerId = req.organizer.id;
 
     const datapassword = await Organizer.findById(organizerId);
 
     if (!datapassword) {
-      return res.status(404).json(apiResponse(false, "Organizer Tidak Di Temukan"))
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer Tidak Di Temukan"));
     }
 
-    const pw = await bcrypt.compare(password, datapassword.password)
+    const pw = await bcrypt.compare(password, datapassword.password);
     if (!pw) {
-      return res.status(404).json(apiResponse(false, 'Password Yang Masukan Saat Ini Salah'))
+      return res
+        .status(404)
+        .json(apiResponse(false, "Password Yang Masukan Saat Ini Salah"));
     }
 
     if (pwbaru !== confirmpw) {
-      res.status(505).json(apiResponse(false, 'Password Tidak Sama Ulangi !!!'))
+      res
+        .status(505)
+        .json(apiResponse(false, "Password Tidak Sama Ulangi !!!"));
     }
 
     const hashPw = await bcrypt.hash(pwbaru, 10);
     datapassword.password = hashPw;
-    await datapassword.save()
-    res.status(200).json(apiResponse(true, 'Berhasil Update Password'))
-
+    await datapassword.save();
+    res.status(200).json(apiResponse(true, "Berhasil Update Password"));
   } catch (error) {
-    console.log(error)
-    res.status(505).json(apiResponse(false, 'Gagal Update Password', error))
+    console.log(error);
+    res.status(505).json(apiResponse(false, "Gagal Update Password", error));
   }
-}
-
+};
 
 export const updateOrganizerById = async (req: Request, res: Response) => {
   const organizerId = req.organizer.id;

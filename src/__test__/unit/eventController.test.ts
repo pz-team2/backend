@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
   tambahEvent,
-  ambilEvent,
+  getEvent,
   getEventById,
   updateEvent,
   hapusEvent,
@@ -81,7 +81,7 @@ describe("Event Controller", () => {
     const mockEvents = [{ title: "Event 1", address: "123 Street" }];
     sinon.stub(Event, "find").resolves(mockEvents);
 
-    await ambilEvent(req as Request, res as Response);
+    await getEvent(req as Request, res as Response);
 
     expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith(
