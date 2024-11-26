@@ -141,14 +141,14 @@ export const updateUser = async (req: Request, res: Response) => {
   const { username, email, fullName, gender, phoneNumber, city } = req.body;
 
   try {
-    // Cari user berdasarkan ID
+    
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json(apiResponse(false, "User Tidak Di Temukan"));
     }
 
-    // Update data user
+    
     if (username) user.username = username;
     if (email) user.email = email;
     if (fullName) user.fullName = fullName;
@@ -156,10 +156,10 @@ export const updateUser = async (req: Request, res: Response) => {
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (city) user.city = city;
 
-    // Simpan perubahan ke database
+    
     await user.save();
 
-    return res.status(200).json(apiResponse(false, "successfully", { user }));
+    return res.status(200).json(apiResponse(true, "successfully", user));
   } catch (error) {
     return res.status(500).json(apiResponse(false, "Erorr Update User", error));
   }
