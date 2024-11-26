@@ -104,7 +104,6 @@ const getAccessToken = async (): Promise<string> => {
  *                   type: string
  *                   example: Terjadi Kesalahan Saat Registrasi
  */
-
 export const Register: RequestHandler = async (
   req: Request,
   res: Response
