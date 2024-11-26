@@ -13,8 +13,8 @@ const router = express.Router();
 // Endpoint untuk mendapatkan semua pengguna
 
 router.get("/", getUsers);
-router.get("/detail/:id", getUserById);
-router.put("/:id/update", updateUser);
+router.get("/detail/:id", protect, getUserById);
+router.put("/update", protect, updateUser);
 router.get("/users", searchUsers);
 router.put('/updatePassword',protect, updatePassword)
 // router.get("/:id", authMiddleware, getProfile);
