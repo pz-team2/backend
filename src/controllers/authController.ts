@@ -181,6 +181,7 @@ export const Register: RequestHandler = async (
               "Registrasi Berhasil Silahkan Verifikasi Email !!"
             )
           );
+          
       }
     });
   } catch (error) {

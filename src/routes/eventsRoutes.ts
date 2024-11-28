@@ -12,16 +12,14 @@ import {
   getEventStats,
   getEvent,
 } from "../controllers/eventController";
-import upload from "../middleware/uploadFile";
+// import upload from "../middleware/uploadFile";
 import apiResponse from "../utils/apiResource";
 import { searchEvents } from "../controllers/searchController";
+import { handleError, upload } from "../middleware/uploadFile";
 
 const routerEvent = Router();
 
-routerEvent.post(
-  "/add/:id",
-  upload.single("picture"),
-  tambahEvent,
+routerEvent.post( "/add/:id",  upload.single("picture"), tambahEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
       res
@@ -32,6 +30,8 @@ routerEvent.post(
     }
   }
 );
+
+routerEvent.use(handleError);
 
 routerEvent.get("/list", getEvent);
 routerEvent.get("/detail/:id", getEventById);

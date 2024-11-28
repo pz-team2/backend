@@ -11,7 +11,12 @@ export const tambahEvent = async (req: Request, res: Response) => {
     const organizerId = req.params.id;
 
     if (!req.file) {
-      return res.status(400).json({ message: "File gambar diperlukan!" });
+      return res.status(400).json(apiResponse(true, "File gambar diperlukan!" ));
+    }
+
+    const maxSizeInBytes = 1000 * 1024 * 1024; 
+    if (req.file.size > maxSizeInBytes) {
+      return res.status(400).json(apiResponse(true, "Ukuran gambar terlalu besar! Maksimum 1000MB."));
     }
 
     const {
@@ -78,6 +83,7 @@ export const tambahEvent = async (req: Request, res: Response) => {
       .json(apiResponse(true, "Berhasil Menambahkan Data", newEvent));
   } catch (error) {
     // Menangani error dan mengirim response
+    console.log(error)
     res.status(500).json(apiResponse(false, "Gagal Menambahkan Data", error));
   }
 };
