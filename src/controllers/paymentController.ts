@@ -6,6 +6,169 @@ import snap from "../utils/midtranst";
 import Ticket from "../models/Ticket";
 import QRCode from "qrcode";
 
+export const getOrganizerPaymentReport = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    // Langkah 1: Cari semua event berdasarkan organizer
+    const events = await Event.find({ organizer: req.organizer._id })
+      .populate("organizer", "organizerName email") // Hanya ambil field tertentu
+      .select("_id title date");
+
+    console.log(events);
+
+    if (!events.length) {
+      return res
+        .status(404)
+        .json(
+          apiResponse(false, "Tidak ada event ditemukan untuk organizer ini")
+        );
+    }
+
+    const eventIds = events.map((event) => event._id);
+
+    const monthlySales = await Payment.aggregate([
+      {
+        $match: {
+          event: { $in: eventIds },
+          paymentStatus: "paid",
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          ticketsSold: { $sum: "$quantity" }, // Total tiket terjual per bulan
+        },
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+        },
+      },
+    ]);
+
+    const monthNames = [
+      "Januari",
+      "Februari",
+      "Maret",
+      "April",
+      "Mei",
+      "Juni",
+      "Juli",
+      "Agustus",
+      "September",
+      "Oktober",
+      "November",
+      "Desember",
+    ];
+
+    // Normalize data untuk memastikan semua bulan muncul (Januari-Desember)
+    const normalizedSales = [];
+    for (let month = 1; month <= 12; month++) {
+      const found = monthlySales.find((sale) => sale._id.month === month);
+      normalizedSales.push({
+        year: found?._id.year || new Date().getFullYear(), // Gunakan tahun transaksi atau tahun sekarang
+        month: monthNames[month - 1], // Ambil nama bulan dari array
+        ticketsSold: found ? found.ticketsSold : 0, // Default 0 jika tidak ada transaksi
+      });
+    }
+
+    // Langkah 4: Hitung total payment, transaksi, dan tiket terjual
+    const report = await Payment.aggregate([
+      {
+        $match: {
+          event: { $in: eventIds },
+          paymentStatus: "paid",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalPayment: { $sum: "$amount" }, // Total pembayaran
+          totalTransactions: { $sum: 1 }, // Total transaksi
+          totalTicketsSold: { $sum: "$quantity" }, // Total tiket terjual
+        },
+      },
+    ]);
+
+    // Format hasil report
+    const result = {
+      totalPayment: report[0]?.totalPayment || 0,
+      totalTransactions: report[0]?.totalTransactions || 0,
+      totalTicketsSold: report[0]?.totalTicketsSold || 0,
+      monthlySales: normalizedSales,
+    };
+
+    // Langkah 2: Gunakan aggregation untuk menghitung data pembayaran
+    // const report = await Payment.aggregate([
+    //   {
+    //     $match: {
+    //       event: { $in: eventIds },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: null,
+    //       totalPayment: { $sum: "$amount" }, // Total pembayaran
+    //       totalTransactions: { $sum: 1 }, // Total transaksi
+    //       totalTicketsSold: { $sum: "$quantity" }, // Total tiket terjual
+    //     },
+    //   },
+    // ]);
+
+    // // Langkah 3: Hitung penjualan tiket per bulan
+    // const monthlySales = await Payment.aggregate([
+    //   {
+    //     $match: {
+    //       event: { $in: eventIds },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: {
+    //         year: { $year: "$createdAt" },
+    //         month: { $month: "$createdAt" },
+    //       },
+    //       ticketsSold: { $sum: "$quantity" }, // Total tiket per bulan
+    //     },
+    //   },
+    //   {
+    //     $sort: {
+    //       "_id.year": 1,
+    //       "_id.month": 1,
+    //     },
+    //   },
+    // ]);
+
+    // // Format hasil report
+    // const result = {
+    //   totalPayment: report[0]?.totalPayment || 0,
+    //   totalTransactions: report[0]?.totalTransactions || 0,
+    //   totalTicketsSold: report[0]?.totalTicketsSold || 0,
+    //   monthlySales: monthlySales.map((sale) => ({
+    //     year: sale._id.year,
+    //     month: sale._id.month,
+    //     ticketsSold: sale.ticketsSold,
+    //   })),
+    // };
+
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan laporan", result));
+  } catch (error) {
+    res
+      .status(500)
+      .json(
+        apiResponse(false, "Terjadi kesalahan saat mendapatkan laporan", error)
+      );
+  }
+};
+
 const generateUniqueTicketCode = async (): Promise<string> => {
   let isUnique = false;
   let ticketCode = "";

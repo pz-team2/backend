@@ -23,12 +23,10 @@ const upload = multer({
   }
 });
 
-// Handle Multer errors, especially file size limit error
-upload.single('image'); // Assuming 'image' is the fieldname for the file upload
+upload.single('image');
 
 const handleError = (err: any, req: any, res: any, next: any) => {
   if (err instanceof multer.MulterError) {
-    // If the error is due to file size limit, respond with a custom message
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
@@ -36,7 +34,6 @@ const handleError = (err: any, req: any, res: any, next: any) => {
       });
     }
   } else if (err) {
-    // For any other error (e.g., file type not supported)
     return res.status(400).json({
       success: false,
       message: err.message || 'Terjadi kesalahan saat mengunggah file.',
