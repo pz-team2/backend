@@ -13,11 +13,11 @@ export const getOrganizers = async (req: Request, res: Response) => {
     const organizers = await Organizer.find();
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan organizer", organizers));
+      .json(apiResponse(true, "Berhasil mendapatkan Data Organizer", organizers, 200));
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan organizer", error));
+      .json(apiResponse(false, "Gagal mendapatkan organizer", error, 500));
   }
 };
 
@@ -41,15 +41,15 @@ export const getOrganizerById = async (req: Request, res: Response) => {
     if (!organizer) {
       return res
         .status(404)
-        .json(apiResponse(false, "Organizer tidak ditemukan"));
+        .json(apiResponse(false, "Organizer Tidak ditemukan", 404));
     }
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan organizer", organizer));
+      .json(apiResponse(true, "Berhasil Mendapatkan organizer", organizer, 200));
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan organizer", error));
+      .json(apiResponse(false, "Gagal Mendapatkan organizer", error, 500));
   }
 };
 
@@ -71,11 +71,11 @@ export const createOrganizer = async (req: Request, res: Response) => {
     await newOrganizer.save();
     res
       .status(201)
-      .json(apiResponse(true, "Organizer berhasil ditambahkan", newOrganizer));
+      .json(apiResponse(true, "Organizer berhasil ditambahkan", newOrganizer, 201));
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal menambahkan organizer", error));
+      .json(apiResponse(false, "Gagal menambahkan organizer", error, 500));
   }
 };
 
@@ -92,17 +92,17 @@ export const updateOrganizer = async (req: Request, res: Response) => {
     if (!updatedOrganizer) {
       return res
         .status(404)
-        .json(apiResponse(false, "Organizer tidak ditemukan"));
+        .json(apiResponse(false, "Organizer tidak ditemukan", 404));
     }
     res
       .status(200)
       .json(
-        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer)
+        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer, 200)
       );
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal memperbarui organizer", error));
+      .json(apiResponse(false, "Gagal memperbarui organizer", error, 500));
   }
 };
 
@@ -116,29 +116,29 @@ export const updatepassword = async (req: Request, res: Response) => {
     if (!datapassword) {
       return res
         .status(404)
-        .json(apiResponse(false, "Organizer Tidak Di Temukan"));
+        .json(apiResponse(false, "Organizer Tidak Di Temukan", 404));
     }
 
     const pw = await bcrypt.compare(password, datapassword.password);
     if (!pw) {
       return res
         .status(404)
-        .json(apiResponse(false, "Password Yang Masukan Saat Ini Salah"));
+        .json(apiResponse(false, "Password Yang Masukan Saat Ini Salah", 404));
     }
 
     if (pwbaru !== confirmpw) {
       res
         .status(505)
-        .json(apiResponse(false, "Password Tidak Sama Ulangi !!!"));
+        .json(apiResponse(false, "Password Tidak Sama Ulangi !!!", 505));
     }
 
     const hashPw = await bcrypt.hash(pwbaru, 10);
     datapassword.password = hashPw;
     await datapassword.save();
-    res.status(200).json(apiResponse(true, "Berhasil Update Password"));
+    res.status(200).json(apiResponse(true, "Berhasil Update Password", 200));
   } catch (error) {
     console.log(error);
-    res.status(505).json(apiResponse(false, "Gagal Update Password", error));
+    res.status(505).json(apiResponse(false, "Gagal Update Password", error, 505));
   }
 };
 
@@ -154,17 +154,17 @@ export const updateOrganizerById = async (req: Request, res: Response) => {
     if (!updatedOrganizer) {
       return res
         .status(404)
-        .json(apiResponse(false, "Organizer tidak ditemukan"));
+        .json(apiResponse(false, "Organizer tidak ditemukan", 404));
     }
     res
       .status(200)
       .json(
-        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer)
+        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer, 200)
       );
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal memperbarui organizer", error));
+      .json(apiResponse(false, "Gagal memperbarui organizer", error, 500));
   }
 };
 
@@ -176,13 +176,13 @@ export const deleteOrganizer = async (req: Request, res: Response) => {
     if (!deletedOrganizer) {
       return res
         .status(404)
-        .json(apiResponse(false, "Organizer tidak ditemukan"));
+        .json(apiResponse(false, "Organizer tidak ditemukan", 404));
     }
-    res.status(200).json(apiResponse(true, "Organizer berhasil dihapus"));
+    res.status(200).json(apiResponse(true, "Organizer berhasil dihapus", 200));
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal menghapus organizer", error));
+      .json(apiResponse(false, "Gagal menghapus organizer", error, 500));
   }
 };
 
@@ -262,97 +262,15 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
     res
       .status(200)
       .json(
-        apiResponse(true, "Berhasil mendapatkan event organizer", response)
+        apiResponse(true, "Berhasil mendapatkan event organizer", response, 200)
       );
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan event organizer", error));
+      .json(apiResponse(false, "Gagal mendapatkan event organizer", error, 500));
   }
 };
 
-// Get Organizer Dashboard Summary
-// export const getOrganizerDashboard = async (req: Request, res: Response) => {
-//     try {
-//         const organizerId = req.params.organizerId;
-
-//         // Get upcoming events (next 7 days)
-//         const nextWeek = new Date();
-//         nextWeek.setDate(nextWeek.getDate() + 7);
-
-//         const upcomingEvents = await Event.find({
-//             organizer: organizerId,
-//             date: {
-//                 $gte: new Date(),
-//                 $lte: nextWeek
-//             }
-//         }).populate('category', 'name');
-
-//         // Get monthly event count
-//         const monthlyEventCount = await Event.aggregate([
-//             {
-//                 $match: {
-//                     organizer: organizerId
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: {
-//                         year: { $year: "$date" },
-//                         month: { $month: "$date" }
-//                     },
-//                     count: { $sum: 1 }
-//                 }
-//             },
-//             {
-//                 $sort: {
-//                     "_id.year": -1,
-//                     "_id.month": -1
-//                 }
-//             },
-//             {
-//                 $limit: 12
-//             }
-//         ]);
-
-//         // Get category distribution
-//         const categoryDistribution = await Event.aggregate([
-//             {
-//                 $match: {
-//                     organizer: organizerId
-//                 }
-//             },
-//             {
-//                 $group: {
-//                     _id: "$category",
-//                     count: { $sum: 1 }
-//                 }
-//             },
-//             {
-//                 $lookup: {
-//                     from: "categories",
-//                     localField: "_id",
-//                     foreignField: "_id",
-//                     as: "categoryInfo"
-//                 }
-//             }
-//         ]);
-
-//         const dashboard = {
-//             upcomingEvents,
-//             monthlyEventCount,
-//             categoryDistribution
-//         };
-
-//         res.status(200).json(
-//             apiResponse(true, "Berhasil mendapatkan dashboard organizer", dashboard)
-//         );
-//     } catch (error) {
-//         res.status(500).json(
-//             apiResponse(false, "Gagal mendapatkan dashboard organizer", error)
-//         );
-//     }
-// };
 
 // Get Organizer Stats
 export const getOrganizerStats = async (req: Request, res: Response) => {
@@ -365,7 +283,7 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
       return res
         .status(404)
         .json(
-          apiResponse(false, "Tidak ada event terkait dengan organizer ini")
+          apiResponse(false, "Tidak ada event terkait dengan organizer ini", 404)
         );
     }
 
@@ -402,6 +320,6 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan data dashboard", error));
+      .json(apiResponse(false, "Gagal mendapatkan data dashboard", error, 500));
   }
 };

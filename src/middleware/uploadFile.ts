@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import apiResponse from '../utils/apiResource';
 
 // Setup multer storage and file size limits
 const upload = multer({
@@ -28,16 +29,10 @@ upload.single('image');
 const handleError = (err: any, req: any, res: any, next: any) => {
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: 'Ukuran file terlalu besar. Maksimum 1MB.',
-      });
+      return res.status(400).json(apiResponse(false, 'Ukuran file terlalu besar. Maksimum 1MB.', null, 400));
+    } else if (err) {
+      return res.status(400).json(apiResponse(false, 'Terjadi Kesalahan Saat Menggugah File.', null, 400));
     }
-  } else if (err) {
-    return res.status(400).json({
-      success: false,
-      message: err.message || 'Terjadi kesalahan saat mengunggah file.',
-    });
   }
 
   next();

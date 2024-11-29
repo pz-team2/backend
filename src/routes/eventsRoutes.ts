@@ -21,7 +21,7 @@ const routerEvent = Router();
 
 routerEvent.post(
   "/add/:id",
-  upload.single("picture"),
+  upload.single("picture"),handleError,
   tambahEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
@@ -451,7 +451,7 @@ routerEvent.get("/events", searchEvents);
  */
 routerEvent.put(
   "/update/:id",
-  upload.single("picture"),
+  upload.single("picture"),handleError,
   updateEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
