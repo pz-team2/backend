@@ -91,7 +91,9 @@ export const tambahEvent = async (req: Request, res: Response) => {
 
 export const getEvent = async (req: Request, res: Response) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find()
+                  .populate("category", "name")
+                  .populate("organizer", "organizerName");
     res.status(200).json(apiResponse(true, "Event berhasil diambil", events, 200));
   } catch (error) {
     res
