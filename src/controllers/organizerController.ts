@@ -22,13 +22,13 @@ export const getOrganizers = async (req: Request, res: Response) => {
 };
 
 //Data Organizer Bedasarkan Role 
-export const getOrganizerByRole = async(req: Request, res: Response) => {
+export const getOrganizerByRole = async (req: Request, res: Response) => {
   try {
-    const organizer = await Organizer.find({role: 'organizer'})
+    const organizer = await Organizer.find({ role: 'organizer' })
 
     res.status(200).json(apiResponse(false, "Data Berhasil", organizer, 200));
 
-  }catch(error){
+  } catch (error) {
     res.status(404).json(apiResponse(false, "Data Tidak Berhasil", error, 404))
   }
 }
@@ -53,17 +53,88 @@ export const getOrganizerById = async (req: Request, res: Response) => {
   }
 };
 
+export const getOrganizerByOne  = async (req: Request, res: Response) => {
+  try {
+    const organizerId = req.organizer.id;
+
+    const organizer = await Organizer.findById(organizerId);
+    if (!organizer) {
+      return res.status(404).json(apiResponse(false, "Organizer not found", null, 404));
+    }
+    res
+      .status(200)
+      .json(apiResponse(true, "Successfully retrieved organizer", organizer, 200));
+  } catch (error) {
+    res
+      .status(500)
+      .json(apiResponse(false, "Failed to get organizer", error, 500));
+  }
+};
+
+
+export const getEventsByOrganizerLatest = async (req: Request, res: Response) => {
+  try {
+
+    const organizerId = req.organizer.id;
+    console.log(organizerId);
+
+    const events = await Event.find({ organizer: organizerId })
+      .populate("organizer", "organizerName")
+      .sort({ date: -1 });
+
+    console.log(events)
+    const eventData = await Promise.all(
+      events.map(async (event) => {
+        const tiketTerjual = await Payment.aggregate([
+          { $match: { event: event._id, paymentStatus: "paid" } },
+          { $group: { _id: null, total: { $sum: "$quantity" } } },
+        ]);
+
+        const jam = moment(event.date)
+          .tz("Asia/Jakarta")
+          .format("YYYY-MM-DD HH:mm:ss");
+
+        return {
+          id: event._id,
+          title: event.title,
+          picture: event.picture,
+          date: jam,
+          status: event.status,
+          organizerName: (event.organizer as any)?.organizerName || "",
+          ticketsSold: tiketTerjual[0]?.total || 0,
+        };
+      })
+    );
+
+    // Mengirim respons dengan format yang disederhanakan
+    res
+      .status(200)
+      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200));
+  } catch (error) {
+    res
+      .status(404)
+      .json(apiResponse(false, "Gagal mendapatkan event terbaru", error, 404));
+  }
+};
+
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
-  const { username, phoneNumber, organizerName, email, password, role } =
+  const { username, phoneNumber, organizerName, email, password, role, status } =
     req.body;
   try {
+    const existingOrganizer = await Organizer.findOne({ email });
+    if (existingOrganizer) {
+      return res
+        .status(400)
+        .json(apiResponse(false, 'Email sudah terdaftar', null, 400));
+    }
     const hashpassword = await bcrypt.hash(password, 10);
 
     const newOrganizer = new Organizer({
       username,
       phoneNumber,
       organizerName,
+      status,
       email,
       password: hashpassword,
       role,
@@ -82,11 +153,11 @@ export const createOrganizer = async (req: Request, res: Response) => {
 // Mengupdate data organizer
 export const updateOrganizer = async (req: Request, res: Response) => {
   const organizerId = req.params.id;
-  const { username, phoneNumber, organizerName, email } = req.body;
+  const { username, phoneNumber, organizerName, email, status } = req.body;
   try {
     const updatedOrganizer = await Organizer.findByIdAndUpdate(
       organizerId,
-      { username, phoneNumber, organizerName, email },
+      { username, phoneNumber, organizerName, email, status },
       { new: true }
     );
     if (!updatedOrganizer) {
@@ -188,7 +259,7 @@ export const deleteOrganizer = async (req: Request, res: Response) => {
 
 export const getEventsByOrganizer = async (req: Request, res: Response) => {
   try {
-    const organizerId = req.params.organizerId;
+    const organizerId = req.organizer.id;
     console.log("Searching for organizerId:", organizerId);
 
     const {

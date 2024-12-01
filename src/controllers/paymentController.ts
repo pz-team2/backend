@@ -255,7 +255,7 @@ export const midtransNotification = async (req: Request, res: Response) => {
     if (!payment) {
       return res
         .status(404)
-        .json(apiResponse(false, "Pembayaran tidak ditemukan", null));
+        .json(apiResponse(false, "Pembayaran tidak ditemukan", null,404));
     }
 
     // Perbarui status pembayaran berdasarkan status transaksi dari Midtrans
@@ -287,9 +287,7 @@ export const midtransNotification = async (req: Request, res: Response) => {
           apiResponse(
             true,
             "Status pembayaran berhasil diperbarui dan tiket dibuat",
-            { payment, tickets }
-          )
-        );
+            { payment, tickets }, 200));
     } else if (transactionStatus == 201) {
       payment.paymentStatus = "pending";
       await payment.save();
@@ -299,13 +297,13 @@ export const midtransNotification = async (req: Request, res: Response) => {
           apiResponse(true, "Status pembayaran berhasil diperbarui", payment)
         );
     } else {
-      return res.status(400).json(apiResponse(false, "Pembayaran gagal", null));
+      return res.status(400).json(apiResponse(false, "Pembayaran gagal", null, 400));
     }
   } catch (error) {
     res
       .status(500)
       .json(
-        apiResponse(false, "Terjadi kesalahan saat memproses notifikasi", error)
+        apiResponse(false, "Terjadi kesalahan saat memproses notifikasi", error, 500)
       );
   }
 };
@@ -319,7 +317,7 @@ export const deleteAllPayments = async (req: Request, res: Response) => {
     if (result.deletedCount === 0) {
       return res
         .status(404)
-        .json(apiResponse(false, "No payments found to delete"));
+        .json(apiResponse(false, "No payments found to delete", 404));
     }
 
     res

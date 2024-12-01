@@ -15,9 +15,7 @@ export interface IOrganizer extends Document {
 const organizerSchema = new Schema<IOrganizer>(
   {
     username: {
-      type: String,
-      required: [true, "Name is required"],
-      unique: true,
+      type: String,required: true
     },
     email: { type: String, required: true, unique: true },
     status: { type: String, required: false, default: 'aktif' },

@@ -7,6 +7,7 @@ import {
 } from "../controllers/userController";
 import { searchUsers } from "../controllers/searchController";
 import { protect } from "../middleware/authMiddleware";
+import { protectOragnizer } from "../middleware/middlewareOrganizer";
 
 const router = express.Router();
 
@@ -96,7 +97,7 @@ const router = express.Router();
  *       500:
  *         description: Failed to retrieve users
  */
-router.get("/", getUsers);
+router.get("/", protectOragnizer, getUsers);
 
 /**
  * @swagger

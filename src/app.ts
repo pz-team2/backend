@@ -39,7 +39,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Routes
 app.use("/api/auth", authRouter);
-app.use("/api/users", protect, usersRouter);
+app.use("/api/users", usersRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/events", routerEvent);
 app.use("/api/organizers", organizersRouter);

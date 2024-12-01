@@ -13,7 +13,7 @@ export const getUsers = async (req: Request, res: Response) => {
     const users = await User.find();
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil Mendapatkan Data User", { users }));
+      .json(apiResponse(true, "Berhasil Mendapatkan Data User", users));
   } catch (error) {
     res.status(500).json(apiResponse(false, "Data Tidak Tersedia", error));
   }
