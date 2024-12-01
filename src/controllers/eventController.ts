@@ -11,12 +11,12 @@ export const tambahEvent = async (req: Request, res: Response) => {
     const organizerId = req.params.id;
 
     if (!req.file) {
-      return res.status(400).json(apiResponse(true, "File gambar diperlukan!", 400 ));
+      return res.status(400).json(apiResponse(true, "File gambar diperlukan!", 400));
     }
 
-    const maxSizeInBytes = 1000 * 1024 * 1024; 
+    const maxSizeInBytes = 1000 * 1024 * 1024;
     if (req.file.size > maxSizeInBytes) {
-      return res.status(400).json(apiResponse(true, "Ukuran gambar terlalu besar! Maksimum 1000MB." , 400));
+      return res.status(400).json(apiResponse(true, "Ukuran gambar terlalu besar! Maksimum 1000MB.", 400));
     }
 
     const {
@@ -92,8 +92,8 @@ export const tambahEvent = async (req: Request, res: Response) => {
 export const getEvent = async (req: Request, res: Response) => {
   try {
     const events = await Event.find()
-                  .populate("category", "name")
-                  .populate("organizer", "organizerName");
+      .populate("category", "name")
+      .populate("organizer", "organizerName");
     res.status(200).json(apiResponse(true, "Event berhasil diambil", events, 200));
   } catch (error) {
     res
@@ -263,67 +263,64 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
 };
 
 // Menampilkan Event Berdasarkan Penghasilan
-export const getEventsByRevenue = async (req: Request, res: Response) => {
+export const getEventByRevenue = async (req: Request, res: Response) => {
   try {
-    const events = await Event.find()
+    const eventId = req.params.id;
+    console.log("Event ID: ", eventId);
+
+    const event = await Event.findById(eventId)
       .populate("organizer", "organizerName")
-      .sort({ date: -1 });
+      .populate("category", "name");
 
-    const eventData = await Promise.all(
-      events.map(async (event) => {
-        // Menghitung tiket terjual dan total penghasilan (revenue) untuk setiap event
-        const revenueData = await Payment.aggregate([
-          { $match: { event: event._id, paymentStatus: "paid" } },
-          {
-            $group: {
-              _id: null,
-              totalRevenue: { $sum: "$amount" },
-              totalTicketsSold: { $sum: "$quantity" },
-            },
-          },
-        ]);
+    if (!event) {
+      return res.status(404).json({
+        success: false,
+        message: "Event tidak ditemukan"
+      });
+    }
 
-        const jam = moment(event.date)
-          .tz("Asia/Jakarta")
-          .format("YYYY-MM-DD HH:mm:ss");
+    // Menghitung tiket terjual dan total penghasilan untuk event yang ditemukan
+    const revenueData = await Payment.aggregate([
+      { $match: { event: event._id, paymentStatus: "paid" } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$amount" },
+          totalTicketsSold: { $sum: "$quantity" },
+        },
+      },
+    ]);
 
-        return {
-          id: event._id,
-          title: event.title,
-          picture: event.picture,
-          date: jam,
-          status: event.status,
-          organizerName: (event.organizer as any)?.organizerName || "",
-          ticketsSold: revenueData[0]?.totalTicketsSold || 0,
-          revenue: revenueData[0]?.totalRevenue || 0,
-        };
-      })
-    );
+    const jam = moment(event.date)
+      .tz("Asia/Jakarta")
+      .format("YYYY-MM-DD HH:mm:ss");
 
-    // Mengurutkan event berdasarkan penghasilan (revenue) tertinggi
-    eventData.sort((a, b) => b.revenue - a.revenue);
+    const eventData = {
+      id: event._id,
+      title: event.title,
+      picture: event.picture,
+      date: jam,
+      status: event.status,
+      price: event.price,
+      quota: event.quota,
+      description: event.description,
+      address: event.address,
+      organizerName: (event.organizer as any)?.organizerName || "",
+      categoryName: (event.category as any)?.name || "",
+      ticketsSold: revenueData[0]?.totalTicketsSold || 0,
+      revenue: revenueData[0]?.totalRevenue || 0,
+    };
 
-    res
-      .status(200)
-      .json(
-        apiResponse(
-          true,
-          "Berhasil mendapatkan event berdasarkan penghasilan",
-          eventData, 200
-        )
-      );
+    // Mengembalikan detail event dalam format response JSON
+    res.status(200).json(apiResponse(true,"Berhasil mendapatkan detail event berdasarkan penghasilan", eventData, 200 ));
+
   } catch (error) {
-    res
-      .status(500)
-      .json(
-        apiResponse(
-          false,
-          "Gagal mendapatkan event berdasarkan penghasilan",
-          error, 500
-        )
-      );
+    // Menangani error jika terjadi kegagalan
+    console.error("Error: ", error);
+    res.status(500).json(apiResponse(true,"Tidak Berhasil mendapatkan detail event berdasarkan penghasilan", error, 500 ));
   }
 };
+
 
 export const getEventsByOrganizer = async (req: Request, res: Response) => {
   try {
