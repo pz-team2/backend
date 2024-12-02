@@ -29,8 +29,8 @@ router.get('/profile',protectOragnizer, getOrganizerByOne)
 router.post("/add", createOrganizer);
 router.get("/detail/:id", getOrganizerById);
 router.put("/update/:id", updateOrganizer);
-router.put("/updateprofile", updateOrganizerById);
-router.put("/updatepassword", updatepassword);
+router.put("/updateprofile", protectOragnizer, updateOrganizerById);
+router.put("/updatepassword", protectOragnizer, updatepassword);
 router.delete("/delete/:id", deleteOrganizer);
 router.get("/events/:organizerId", searchEventsByOrganizer);
 router.get("/event",protectOragnizer, getEventsByOrganizer);
