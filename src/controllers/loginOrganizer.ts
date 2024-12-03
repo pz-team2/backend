@@ -26,7 +26,7 @@ export const LoginOrganizer = async (req: Request, res: Response) => {
         const {role} = organizer
         // Buat payload dan token JWT
         const payload = { organizerId: organizer.id };
-        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "2h" });
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
         return res.status(200).json(apiResponse(true, 'Berhasil Login ', { token, role }));
     } catch (error) {

@@ -138,7 +138,7 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
 
     // Buat payload dan token JWT
     const payload = { userId: user.id };
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
     return res
       .status(200)
