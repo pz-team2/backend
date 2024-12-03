@@ -36,6 +36,8 @@ export const getOrganizerByRole = async (req: Request, res: Response) => {
 // Mendapatkan organizer berdasarkan ID
 export const getOrganizerById = async (req: Request, res: Response) => {
   const organizerId = req.params.id;
+
+  console.log("Organizer ID:", organizerId);
   try {
     const organizer = await Organizer.findById(organizerId);
     if (!organizer) {

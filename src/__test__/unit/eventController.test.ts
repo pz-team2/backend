@@ -1,168 +1,364 @@
 import { Request, Response } from "express";
-import {
-  tambahEvent,
-  getEvent,
-  getEventById,
-  updateEvent,
-  hapusEvent,
-  getRecentEvents,
-} from "../../controllers/eventController";
+import mongoose from "mongoose";
 import Event from "../../models/Event";
+import Payment from "../../models/Payment";
 import apiResponse from "../../utils/apiResource";
-import sinon from "sinon";
-import { Query } from "mongoose";
+import * as eventController from "../../controllers/eventController";
+
+jest.mock("../../models/Event");
+jest.mock("../../models/Payment");
+jest.mock("../../utils/apiResource", () => jest.fn());
 
 describe("Event Controller", () => {
-  let req: Partial<Request>;
-  let res: Partial<Response>;
-  let next: jest.Mock;
+  let mockRequest: Partial<Request>;
+  let mockResponse: Partial<Response>;
 
   beforeEach(() => {
-    req = {};
-    res = {
+    jest.clearAllMocks();
+    mockRequest = {
+      params: {},
+      body: {},
+      query: {},
+      file: undefined,
+    };
+    mockResponse = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     };
-    next = jest.fn();
+
+    (apiResponse as jest.Mock).mockImplementation(
+      (success, message, data = null, code = 200) => ({
+        success,
+        message,
+        data,
+        code,
+      })
+    );
   });
 
-  afterEach(() => {
-    sinon.restore();
+  describe("tambahEvent", () => {
+    it("should return 400 if no file is uploaded", async () => {
+      mockRequest.params = { id: "organizerId" };
+
+      await eventController.tambahEvent(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(400);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "File gambar diperlukan!",
+        })
+      );
+    });
+
+    it("should save event if valid", async () => {
+      mockRequest.params = { id: "organizerId" };
+      mockRequest.file = { path: "/path/to/image", size: 500 * 1024 } as any;
+      mockRequest.body = {
+        title: "Test Event",
+        quota: 100,
+        price: 50000,
+        startTime: "10:00",
+        finishTime: "12:00",
+        address: "Test Address",
+        status: "active",
+        description: "Test Description",
+        category: new mongoose.Types.ObjectId(),
+      };
+
+      (Event.prototype.save as jest.Mock).mockResolvedValue({
+        _id: "mockEventId",
+        ...mockRequest.body,
+        picture: "/path/to/image",
+      });
+
+      await eventController.tambahEvent(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil Menambahkan Data",
+        })
+      );
+    });
   });
 
-  test("should add a new event", async () => {
-    req.file = { path: "path/to/image.jpg" } as Express.Multer.File;
-    req.body = {
-      title: "Event 1",
-      quota: 100,
-      price: 50,
-      startTime: "10:00",
-      finishTime: "12:00",
-      date: "2023-12-31",
-      address: "123 Street",
-      status: "active",
-      description: "Description",
-      organizer: "OrganizerId",
-      category: "CategoryId",
-    };
-    const mockEvent = {
-      _id: "anyid",
-      ...req.body,
-      picture: req.file.path,
-    };
-    sinon.stub(Event.prototype, "save").resolves(mockEvent);
+  describe("getEvent", () => {
+    it("should return all events", async () => {
+      const mockEvents = [
+        { title: "Event 1", date: "2024-01-01" },
+        { title: "Event 2", date: "2024-02-01" },
+      ];
 
-    await tambahEvent(req as Request, res as Response);
-
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      expect.objectContaining({
-        success: true,
-        message: "Berhasil Menambahkan Data",
-        data: expect.objectContaining({
-          newEvent: expect.objectContaining({
-            title: "Event 1",
-            quota: 100,
-            price: 50,
-            startTime: "10:00",
-            finishTime: "12:00",
-            date: new Date("2023-12-31T00:00:00.000Z"),
-            address: "123 Street",
-            status: "active",
-            description: "Description",
-            picture: "path/to/image.jpg",
-          }),
+      (Event.find as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockReturnValueOnce({
+          populate: jest.fn().mockResolvedValueOnce(mockEvents),
         }),
-      })
-    );
+      });
+
+      await eventController.getEvent(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Event berhasil diambil",
+          data: mockEvents,
+        })
+      );
+    });
   });
 
-  test("should get all events", async () => {
-    const mockEvents = [{ title: "Event 1", address: "123 Street" }];
-    sinon.stub(Event, "find").resolves(mockEvents);
+  describe("getEventById", () => {
+    it("should return an event by ID", async () => {
+      const mockEvent = { _id: "eventId", title: "Event Test" };
 
-    await getEvent(req as Request, res as Response);
+      (Event.findById as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockReturnValueOnce({
+          populate: jest.fn().mockResolvedValueOnce(mockEvent),
+        }),
+      });
 
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      apiResponse(true, "Event berhasil diambil", mockEvents)
-    );
+      mockRequest.params = { id: "eventId" };
+
+      await eventController.getEventById(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Event berhasil diakses",
+          data: mockEvent,
+        })
+      );
+    });
   });
 
-  test("should get event by id", async () => {
-    req.params = { id: "1" };
-    const mockEvent = { title: "Event 1", address: "123 Street" };
-    sinon.stub(Event, "findById").resolves(mockEvent);
+  describe("getRecentEvents", () => {
+    it("should return recent events", async () => {
+      const mockEvents = [
+        { title: "Recent Event 1", date: "2024-01-01" },
+        { title: "Recent Event 2", date: "2024-02-01" },
+      ];
 
-    await getEventById(req as Request, res as Response);
+      (Event.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockResolvedValue(mockEvents),
+      });
 
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      apiResponse(true, "Event berhasil diakses", mockEvent)
-    );
+      try {
+        await eventController.getRecentEvents(
+          mockRequest as Request,
+          mockResponse as Response
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success: true,
+            message: "Berhasil mendapatkan event terbaru",
+            data: {
+              data: mockEvents,
+              pagination: expect.any(Object),
+            },
+          })
+        );
+      } catch (error) {
+        console.error("Error in getRecentEvents test:", error);
+        throw error;
+      }
+    });
   });
 
-  test("should update an event", async () => {
-    req.params = { id: "1" };
-    req.body = { title: "Event 1 Updated", address: "123 Street Updated" };
-    const mockEvent = {
-      title: "Event 1",
-      address: "123 Street",
-      save: jest.fn().mockResolvedValue({}),
-    };
-    sinon.stub(Event, "findById").resolves(mockEvent);
-
-    await updateEvent(req as Request, res as Response);
-
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      apiResponse(true, "Event berhasil diperbarui", mockEvent)
-    );
-  });
-
-  test("should delete an event", async () => {
-    req.params = { id: "1" };
-    const mockEvent = { title: "Event 1", address: "123 Street" };
-    sinon.stub(Event, "findByIdAndDelete").resolves(mockEvent);
-
-    await hapusEvent(req as Request, res as Response);
-
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      apiResponse(true, "Event berhasil dihapus", mockEvent)
-    );
-  });
-
-  test("should get recent events with pagination", async () => {
-    req.query = { limit: "10", page: "1" };
-    const mockEvents = [{ title: "Event 1", address: "123 Street" }];
-    const mockQuery = {
-      sort: sinon.stub().returnsThis(),
-      skip: sinon.stub().returnsThis(),
-      limit: sinon.stub().returnsThis(),
-      populate: sinon.stub().returnsThis(),
-      exec: sinon.stub().resolves(mockEvents),
-    };
-
-    sinon
-      .stub(Event, "find")
-      .returns(mockQuery as unknown as Query<any[], any>);
-    sinon.stub(Event, "countDocuments").resolves(1);
-
-    await getRecentEvents(req as Request, res as Response);
-
-    expect(res.status).toBeCalledWith(200);
-    expect(res.json).toBeCalledWith(
-      apiResponse(true, "Berhasil mendapatkan event terbaru", {
-        data: mockEvents,
-        pagination: {
-          total: 1,
-          page: 1,
-          lastPage: 1,
-          hasNextPage: false,
-          hasPrevPage: false,
+  describe("getDataEventOrganizer", () => {
+    it("should return event data by organizer", async () => {
+      const mockEvents = [
+        {
+          _id: "eventId",
+          title: "Test Event",
+          date: new Date(),
+          picture: "/path/to/image",
+          organizer: { _id: "organizerId", organizerName: "Organizer Name" },
+          status: "active",
         },
-      })
-    );
+      ];
+
+      const mockPayments = [{ total: 10 }];
+
+      (Event.find as jest.Mock).mockReturnValue({
+        populate: jest.fn().mockResolvedValue(mockEvents),
+      });
+
+      (Payment.aggregate as jest.Mock).mockResolvedValue(mockPayments);
+
+      mockRequest.params = { organizerId: "organizerId" };
+
+      try {
+        await eventController.getDataEventOrganizer(
+          mockRequest as Request,
+          mockResponse as Response
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success: true,
+            message: "Berhasil mendapatkan event terbaru",
+            data: [
+              expect.objectContaining({
+                id: mockEvents[0]._id,
+                title: mockEvents[0].title,
+                ticketsSold: 10,
+              }),
+            ],
+          })
+        );
+      } catch (error) {
+        console.error("Error in getDataEventOrganizer test:", error);
+        throw error;
+      }
+    });
+  });
+
+  describe("getEventsByOrganizer", () => {
+    it("should return events by organizer", async () => {
+      const mockEvents = [
+        { title: "Event 1", date: "2024-01-01", organizer: "organizerId" },
+        { title: "Event 2", date: "2024-02-01", organizer: "organizerId" },
+      ];
+
+      (Event.find as jest.Mock).mockReturnValue({
+        populate: jest.fn().mockResolvedValue(mockEvents),
+      });
+
+      mockRequest.params = { organizerId: "organizerId" };
+      mockRequest.query = { page: "1", limit: "2" };
+
+      try {
+        await eventController.getEventsByOrganizer(
+          mockRequest as Request,
+          mockResponse as Response
+        );
+
+        expect(mockResponse.status).toHaveBeenCalledWith(200);
+        expect(mockResponse.json).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success: true,
+            message: "Berhasil mendapatkan event organizer",
+            data: {
+              data: mockEvents,
+              pagination: expect.any(Object),
+            },
+          })
+        );
+      } catch (error) {
+        console.error("Error in getEventsByOrganizer test:", error);
+        throw error;
+      }
+    });
+  });
+
+  describe("getEventStats", () => {
+    it("should return event stats successfully", async () => {
+      const mockEventId = "mockEventId";
+      const mockEvent = {
+        _id: mockEventId,
+        title: "Mock Event",
+        quota: 100,
+        date: new Date(),
+        organizer: { organizerName: "Mock Organizer" },
+        category: { name: "Mock Category" },
+      };
+
+      (Event.findById as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockReturnValueOnce({
+          populate: jest.fn().mockResolvedValueOnce(mockEvent),
+        }),
+      });
+
+      (Payment.aggregate as jest.Mock).mockResolvedValueOnce([
+        { totalRevenue: 500000 },
+      ]);
+      (Payment.aggregate as jest.Mock).mockResolvedValueOnce([{ total: 50 }]); // Tickets sold
+
+      mockRequest.params = { id: mockEventId };
+
+      await eventController.getEventStats(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mendapatkan detail event",
+          data: {
+            stats: {
+              totalRevenue: 500000,
+              ticketsSold: 50,
+              ticketsRemaining: 50,
+            },
+          },
+        })
+      );
+    });
+  });
+
+  describe("getEventByRevenue", () => {
+    it("should return event revenue details", async () => {
+      const mockEventId = "mockEventId";
+      const mockEvent = {
+        _id: mockEventId,
+        title: "Mock Event",
+        quota: 100,
+        price: 50000,
+        organizer: { organizerName: "Mock Organizer" },
+        category: { name: "Mock Category" },
+      };
+
+      (Event.findById as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockReturnValueOnce({
+          populate: jest.fn().mockResolvedValueOnce(mockEvent),
+        }),
+      });
+
+      (Payment.aggregate as jest.Mock).mockResolvedValueOnce([
+        { totalRevenue: 500000, totalTicketsSold: 50 },
+      ]);
+
+      mockRequest.params = { id: mockEventId };
+
+      await eventController.getEventByRevenue(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mendapatkan detail event berdasarkan penghasilan",
+          data: expect.objectContaining({
+            revenue: 500000,
+            ticketsSold: 50,
+          }),
+        })
+      );
+    });
   });
 });

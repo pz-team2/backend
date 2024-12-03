@@ -142,7 +142,7 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json(apiResponse(true, "Berhasil Login ", { token }));
+      .json(apiResponse(true, "Berhasil Login ", { token, username: user.username }));
   } catch (error) {
     return res
       .status(500)
