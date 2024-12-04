@@ -22,17 +22,17 @@ import { getOrganizerPaymentReport } from "../controllers/paymentController";
 const router = Router();
 
 router.post("/login", LoginOrganizer);
-router.get("/", getOrganizers);
-router.get('/getdata', getOrganizerByRole)
+router.get("/",protectOragnizer, getOrganizers);
+router.get('/getdata',protectOragnizer, getOrganizerByRole)
 router.get('/getdataevent',protectOragnizer, getEventsByOrganizerLatest)
 router.get('/profile',protectOragnizer, getOrganizerByOne)
-router.post("/add", createOrganizer);
+router.post("/add",protectOragnizer, createOrganizer);
 router.get("/detail/:id", getOrganizerById);
 router.put("/update/:id", updateOrganizer);
 router.put("/updateprofile", protectOragnizer, updateOrganizerById);
 router.put("/updatepassword", protectOragnizer, updatepassword);
-router.delete("/delete/:id", deleteOrganizer);
-router.get("/events/:organizerId", searchEventsByOrganizer);
+router.delete("/delete/:id", protectOragnizer,deleteOrganizer);
+router.get("/events/:organizerId",protectOragnizer, searchEventsByOrganizer);
 router.get("/event",protectOragnizer, getEventsByOrganizer);
 router.get("/report", protectOragnizer, getOrganizerPaymentReport);
 
