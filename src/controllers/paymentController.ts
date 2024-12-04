@@ -104,58 +104,7 @@ export const getOrganizerPaymentReport = async (
       monthlySales: normalizedSales,
     };
 
-    // Langkah 2: Gunakan aggregation untuk menghitung data pembayaran
-    // const report = await Payment.aggregate([
-    //   {
-    //     $match: {
-    //       event: { $in: eventIds },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: null,
-    //       totalPayment: { $sum: "$amount" }, // Total pembayaran
-    //       totalTransactions: { $sum: 1 }, // Total transaksi
-    //       totalTicketsSold: { $sum: "$quantity" }, // Total tiket terjual
-    //     },
-    //   },
-    // ]);
 
-    // // Langkah 3: Hitung penjualan tiket per bulan
-    // const monthlySales = await Payment.aggregate([
-    //   {
-    //     $match: {
-    //       event: { $in: eventIds },
-    //     },
-    //   },
-    //   {
-    //     $group: {
-    //       _id: {
-    //         year: { $year: "$createdAt" },
-    //         month: { $month: "$createdAt" },
-    //       },
-    //       ticketsSold: { $sum: "$quantity" }, // Total tiket per bulan
-    //     },
-    //   },
-    //   {
-    //     $sort: {
-    //       "_id.year": 1,
-    //       "_id.month": 1,
-    //     },
-    //   },
-    // ]);
-
-    // // Format hasil report
-    // const result = {
-    //   totalPayment: report[0]?.totalPayment || 0,
-    //   totalTransactions: report[0]?.totalTransactions || 0,
-    //   totalTicketsSold: report[0]?.totalTicketsSold || 0,
-    //   monthlySales: monthlySales.map((sale) => ({
-    //     year: sale._id.year,
-    //     month: sale._id.month,
-    //     ticketsSold: sale.ticketsSold,
-    //   })),
-    // };
 
     res
       .status(200)
@@ -244,22 +193,39 @@ export const payment = async (req: Request, res: Response) => {
 
 export const midtransNotification = async (req: Request, res: Response) => {
   const notification = req.body;
+  console.log(`notif: ${notification}`)
 
   try {
     const transactionStatus = notification.status_code;
     const orderId = notification.order_id;
 
-    // Cari pembayaran berdasarkan order ID
-    const payment = await Payment.findOne({ order_id: orderId });
+    const payment = await Payment.findOne({ order_id: orderId }).populate("event");
+
+    const event = await Event.findOne({ _id: payment?.event._id })
+    if (!event) {
+      return res
+        .status(404)
+        .json(apiResponse(false, "Event tidak ditemukan", null, 404));
+    }
 
     if (!payment) {
       return res
         .status(404)
-        .json(apiResponse(false, "Pembayaran tidak ditemukan", null,404));
+        .json(apiResponse(false, "Pembayaran tidak ditemukan", null, 404));
     }
 
     // Perbarui status pembayaran berdasarkan status transaksi dari Midtrans
     if (transactionStatus == 200) {
+
+      if (event.quota >= payment.quantity  ) {
+        event.quota -= payment.quantity;
+        await Event.findByIdAndUpdate(payment?.event._id, { quota: event.quota }, { new: true });
+      } else {
+        return res
+          .status(400)
+          .json(apiResponse(false, "Kuota tiket tidak mencukupi", null, 400));
+      }
+
       payment.paymentStatus = "paid";
 
       // Generate tiket sesuai jumlah yang dibeli

@@ -1,0 +1,78 @@
+// export const midtransNotification = async (req: Request, res: Response) => {
+//   const notification = req.body;
+
+//   try {
+//     const transactionStatus = notification.status_code;
+//     const orderId = notification.order_id;
+
+//     // Cari pembayaran berdasarkan order ID dan populate data event
+//     const payment = await Payment.findOne({ order_id: orderId }).populate("event");
+    
+//     if (!payment) {
+//       return res
+//         .status(404)
+//         .json(apiResponse(false, "Pembayaran tidak ditemukan", null, 404));
+//     }
+
+//     // Periksa apakah event terpopulasi dengan benar
+//     const event = await Event.findOne({_id: payment?.event._id})
+//     if (!event) {
+//       return res
+//         .status(404)
+//         .json(apiResponse(false, "Event tidak ditemukan", null, 404));
+//     }
+//     // Perbarui status pembayaran berdasarkan status transaksi dari Midtrans
+//     if (transactionStatus == 200) {
+//       // Pembayaran berhasil
+//       payment.paymentStatus = "paid";
+
+//       // Kurangi kuota tiket pada event
+//       if (payment.quantity >= event.quota) {
+//         const ticketquota = event.quota -= payment.quantity;
+//         console.log(`event: ${ticketquota}`)
+//         Event.findByIdAndUpdate(payment?.event._id, { quota:ticketquota }, { new: true });
+//       } else {
+//         return res
+//         .status(400)
+//         .json(apiResponse(false, "Kuota tiket tidak mencukupi", null, 400));
+//       }
+
+//       // Generate tiket sesuai jumlah yang dibeli
+//       const tickets = [];
+//       for (let i = 0; i < payment.quantity; i++) {
+//         const ticketCode = await generateUniqueTicketCode(); // Memanggil fungsi untuk membuat kode unik
+//         const qrcode = await QRCode.toDataURL(ticketCode); // Membuat QR code
+//         const ticketName = `Ticket ${i + 1}`;
+
+//         const ticket = new Ticket({
+//           name: ticketName,
+//           code: ticketCode,
+//           qrcode: qrcode,
+//           payment: payment._id,
+//           status: "AVAILABLE",
+//         });
+
+//         await ticket.save();
+//         tickets.push(ticket);
+//       }
+
+//       // Simpan perubahan pada event dan pembayaran 
+//       await payment.save();
+//       res.status(200).json(apiResponse(true, "Status pembayaran berhasil diperbarui dan tiket dibuat", { payment, tickets }, 200));
+//     } else if (transactionStatus == 201) {
+//       // Pembayaran pending
+//       payment.paymentStatus = "pending";
+//       await payment.save();
+//       res
+//         .status(200)
+//         .json(apiResponse(true, "Status pembayaran berhasil diperbarui (pending)", payment));
+//     } else {
+//       // Pembayaran gagal
+//       payment.paymentStatus = "failed";
+//       await payment.save();
+//       res.status(400).json(apiResponse(false, "Pembayaran gagal", null, 400));
+//     }
+//   } catch (error) {
+//     res.status(500).json(apiResponse(false, "Terjadi kesalahan saat memproses notifikasi", error, 500));
+//   }
+// };

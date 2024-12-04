@@ -1,5 +1,6 @@
 
 import mongoose, { Document, Schema, Model } from 'mongoose';
+import { IEvent } from './Event'; // Import tipe IEvent
 
 export interface IPayment extends Document {
   amount: number;
