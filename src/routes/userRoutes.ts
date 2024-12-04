@@ -186,6 +186,34 @@ router.get("/detail", protect, getUserById);
  *         description: Failed to update user data
  */
 router.put("/update", protect, updateUser);
+
+/**
+ * @swagger
+ * /api/search/users:
+ *   get:
+ *     summary: Search users based on username, email, fullName, or city
+ *     tags: [Search]
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Query string for searching users
+ *     responses:
+ *       200:
+ *         description: Successfully searched users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Query parameter is required
+ *       500:
+ *         description: Server error
+ */
 router.get("/users", searchUsers);
 
 /**

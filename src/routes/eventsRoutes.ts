@@ -19,9 +19,127 @@ import { handleError, upload } from "../middleware/uploadFile";
 
 const routerEvent = Router();
 
+// Event Component Schema
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Event:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier for the event
+ *         title:
+ *           type: string
+ *           description: Title of the event
+ *         quota:
+ *           type: integer
+ *           description: Maximum number of attendees
+ *         price:
+ *           type: number
+ *           format: float
+ *           description: Price of the event ticket
+ *         startTime:
+ *           type: string
+ *           format: time
+ *           description: Start time of the event
+ *         finishTime:
+ *           type: string
+ *           format: time
+ *           description: Finish time of the event
+ *         date:
+ *           type: string
+ *           format: date
+ *           description: Date of the event
+ *         address:
+ *           type: string
+ *           description: Address where the event is held
+ *         description:
+ *           type: string
+ *           description: Detailed description of the event
+ *         status:
+ *           type: string
+ *           enum: [planned, ongoing, completed, cancelled]
+ *           description: Current status of the event
+ *         picture:
+ *           type: string
+ *           format: binary
+ *           description: Image of the event
+ *         category:
+ *           type: string
+ *           description: ID of the event's category
+ *         organizer:
+ *           type: string
+ *           description: ID of the event organizer
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: When the event was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: When the event was last updated
+ */
+
+/**
+ * @swagger
+ * /api/events/add/{organizerId}:
+ *   post:
+ *     summary: Create a new event
+ *     tags: [Event]
+ *     parameters:
+ *       - in: path
+ *         name: organizerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the organizer creating the event
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               quota:
+ *                 type: integer
+ *               price:
+ *                 type: number
+ *                 format: float
+ *               startTime:
+ *                 type: string
+ *                 format: time
+ *               finishTime:
+ *                 type: string
+ *                 format: time
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               address:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [planned, ongoing, completed, cancelled]
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               picture:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Event created successfully
+ *       400:
+ *         description: Invalid input
+ */
 routerEvent.post(
   "/add/:id",
-  upload.single("picture"),handleError,
+  upload.single("picture"),
+  handleError,
   tambahEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
@@ -40,11 +158,11 @@ routerEvent.use(handleError);
  * @swagger
  * /api/events/list:
  *   get:
- *     summary: Get all events
+ *     summary: Retrieve all events
  *     tags: [Event]
  *     responses:
  *       200:
- *         description: List of events
+ *         description: List of events retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -58,7 +176,7 @@ routerEvent.get("/list", getEvent);
  * @swagger
  * /api/events/detail/{id}:
  *   get:
- *     summary: Get event details by ID
+ *     summary: Retrieve event details by ID
  *     tags: [Event]
  *     parameters:
  *       - in: path
@@ -66,10 +184,10 @@ routerEvent.get("/list", getEvent);
  *         required: true
  *         schema:
  *           type: string
- *         description: ID of the event
+ *         description: ID of the event to retrieve
  *     responses:
  *       200:
- *         description: Event details
+ *         description: Event details retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -338,37 +456,37 @@ routerEvent.delete("/delete/:id", hapusEvent);
 
 /**
  * @swagger
- * /api/events/events:
+ * /api/search/events:
  *   get:
- *     summary: Search events with advanced filters
- *     tags: [Event]
+ *     summary: Search events based on text and additional filters
+ *     tags: [Search]
  *     parameters:
  *       - in: query
  *         name: query
  *         schema:
  *           type: string
- *         description: Search query (title, description, or address)
+ *         description: Text query for searching events
  *       - in: query
  *         name: category
  *         schema:
  *           type: string
- *         description: Filter by category
+ *         description: Filter by event category
  *       - in: query
  *         name: minPrice
  *         schema:
  *           type: number
- *         description: Minimum price for events
+ *         description: Minimum price of the event
  *       - in: query
  *         name: maxPrice
  *         schema:
  *           type: number
- *         description: Maximum price for events
+ *         description: Maximum price of the event
  *       - in: query
  *         name: date
  *         schema:
  *           type: string
- *           format: date-time
- *         description: Filter by event date
+ *           format: date
+ *         description: Filter events by date
  *       - in: query
  *         name: status
  *         schema:
@@ -381,7 +499,7 @@ routerEvent.delete("/delete/:id", hapusEvent);
  *         description: Filter by organizer ID
  *     responses:
  *       200:
- *         description: Events retrieved successfully
+ *         description: Successfully searched events
  *         content:
  *           application/json:
  *             schema:
@@ -389,7 +507,7 @@ routerEvent.delete("/delete/:id", hapusEvent);
  *               items:
  *                 $ref: '#/components/schemas/Event'
  *       500:
- *         description: Failed to search for events
+ *         description: Server error
  */
 routerEvent.get("/events", searchEvents);
 
@@ -451,7 +569,8 @@ routerEvent.get("/events", searchEvents);
  */
 routerEvent.put(
   "/update/:id",
-  upload.single("picture"),handleError,
+  upload.single("picture"),
+  handleError,
   updateEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
