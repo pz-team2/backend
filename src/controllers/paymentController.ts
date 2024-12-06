@@ -104,8 +104,6 @@ export const getOrganizerPaymentReport = async (
       monthlySales: normalizedSales,
     };
 
-
-
     res
       .status(200)
       .json(apiResponse(true, "Berhasil mendapatkan laporan", result));
@@ -193,15 +191,17 @@ export const payment = async (req: Request, res: Response) => {
 
 export const midtransNotification = async (req: Request, res: Response) => {
   const notification = req.body;
-  console.log(`notif: ${notification}`)
+  console.log(`notif: ${notification}`);
 
   try {
     const transactionStatus = notification.status_code;
     const orderId = notification.order_id;
 
-    const payment = await Payment.findOne({ order_id: orderId }).populate("event");
+    const payment = await Payment.findOne({ order_id: orderId }).populate(
+      "event"
+    );
 
-    const event = await Event.findOne({ _id: payment?.event._id })
+    const event = await Event.findOne({ _id: payment?.event._id });
     if (!event) {
       return res
         .status(404)
@@ -216,10 +216,13 @@ export const midtransNotification = async (req: Request, res: Response) => {
 
     // Perbarui status pembayaran berdasarkan status transaksi dari Midtrans
     if (transactionStatus == 200) {
-
-      if (event.quota >= payment.quantity  ) {
+      if (event.quota >= payment.quantity) {
         event.quota -= payment.quantity;
-        await Event.findByIdAndUpdate(payment?.event._id, { quota: event.quota }, { new: true });
+        await Event.findByIdAndUpdate(
+          payment?.event._id,
+          { quota: event.quota },
+          { new: true }
+        );
       } else {
         return res
           .status(400)
@@ -253,7 +256,10 @@ export const midtransNotification = async (req: Request, res: Response) => {
           apiResponse(
             true,
             "Status pembayaran berhasil diperbarui dan tiket dibuat",
-            { payment, tickets }, 200));
+            { payment, tickets },
+            200
+          )
+        );
     } else if (transactionStatus == 201) {
       payment.paymentStatus = "pending";
       await payment.save();
@@ -263,13 +269,20 @@ export const midtransNotification = async (req: Request, res: Response) => {
           apiResponse(true, "Status pembayaran berhasil diperbarui", payment)
         );
     } else {
-      return res.status(400).json(apiResponse(false, "Pembayaran gagal", null, 400));
+      return res
+        .status(400)
+        .json(apiResponse(false, "Pembayaran gagal", null, 400));
     }
   } catch (error) {
     res
       .status(500)
       .json(
-        apiResponse(false, "Terjadi kesalahan saat memproses notifikasi", error, 500)
+        apiResponse(
+          false,
+          "Terjadi kesalahan saat memproses notifikasi",
+          error,
+          500
+        )
       );
   }
 };
@@ -294,6 +307,7 @@ export const deleteAllPayments = async (req: Request, res: Response) => {
   }
 };
 
+// User Transactions History
 export const getUserTransactionHistory = async (
   req: Request,
   res: Response

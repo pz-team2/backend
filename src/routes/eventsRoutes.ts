@@ -16,6 +16,7 @@ import {
 import apiResponse from "../utils/apiResource";
 import { searchEvents } from "../controllers/searchController";
 import { handleError, upload } from "../middleware/uploadFile";
+import { protectOragnizer } from "../middleware/middlewareOrganizer";
 
 const routerEvent = Router();
 
@@ -161,7 +162,7 @@ routerEvent.get("/recent", getRecentEvents);
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/dataterbaru", getDataEventOrganizer);
+routerEvent.get("/dataterbaru",protectOragnizer, getDataEventOrganizer);
 
 /**
  * @swagger
@@ -231,7 +232,7 @@ routerEvent.get("/dataterbaru", getDataEventOrganizer);
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/listevent/:organizerId", getEventsByOrganizer);
+routerEvent.get("/listevent/:organizerId",protectOragnizer, getEventsByOrganizer);
 
 // Menampilkan Event Berdasarkan Penghasilan
 /**
@@ -270,7 +271,7 @@ routerEvent.get("/listevent/:organizerId", getEventsByOrganizer);
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/event-by-revenue/:id", getEventByRevenue);
+routerEvent.get("/event-by-revenue/:id",protectOragnizer, getEventByRevenue);
 
 // Get Event Stats
 /**
@@ -311,7 +312,7 @@ routerEvent.get("/event-by-revenue/:id", getEventByRevenue);
  *       500:
  *         description: Failed to retrieve event statistics
  */
-routerEvent.get("/events-stats/:id", getEventStats);
+routerEvent.get("/events-stats/:id",protectOragnizer, getEventStats);
 
 /**
  * @swagger
@@ -334,7 +335,7 @@ routerEvent.get("/events-stats/:id", getEventStats);
  *       500:
  *         description: Failed to delete the event
  */
-routerEvent.delete("/delete/:id", hapusEvent);
+routerEvent.delete("/delete/:id",protectOragnizer, hapusEvent);
 
 /**
  * @swagger
