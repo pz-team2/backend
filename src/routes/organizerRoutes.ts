@@ -138,12 +138,12 @@ const router = Router();
  *                   example: Terjadi Kesalahan Saat Login
  */
 router.post("/login", LoginOrganizer);
-router.get("/", getOrganizers);
-router.get('/getdata', getOrganizerByRole)
+router.get("/",protectOragnizer, getOrganizers);
+router.get('/getdata',protectOragnizer, getOrganizerByRole)
 router.get('/getdataevent',protectOragnizer, getEventsByOrganizerLatest)
 router.get('/profile',protectOragnizer, getOrganizerByOne)
-router.post("/add", createOrganizer);
-router.get("/detail/:id", getOrganizerById);
+router.post("/add",protectOragnizer, createOrganizer);
+router.get("/detail/:id",protectOragnizer, getOrganizerById);
 
 /**
  * @swagger
@@ -187,7 +187,7 @@ router.get("/detail/:id", getOrganizerById);
  *       500:
  *         description: Server error
  */
-router.put("/update/:id", updateOrganizer);
+router.put("/update/:id",protectOragnizer, updateOrganizer);
 
 /**
  * @swagger
@@ -259,8 +259,8 @@ router.put("/updateprofile", protectOragnizer, updateOrganizerById);
  *         description: Server error
  */
 router.put("/updatepassword", protectOragnizer, updatepassword);
-router.delete("/delete/:id", deleteOrganizer);
-router.get("/events/:organizerId", searchEventsByOrganizer);
+router.delete("/delete/:id",protectOragnizer, deleteOrganizer);
+router.get("/events/:organizerId",protectOragnizer, searchEventsByOrganizer);
 router.get("/event",protectOragnizer, getEventsByOrganizer);
 router.get("/report", protectOragnizer, getOrganizerPaymentReport);
 
