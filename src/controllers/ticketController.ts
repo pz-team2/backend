@@ -91,57 +91,6 @@ export const getTicketByPaymentId = async (req: Request, res: Response) => {
   }
 };
 
-// export const addTicket = async (req: Request, res: Response) => {
-//   const { code, qrcode, payment } = req.body;
-//   try {
-//     const newTicket = new Ticket({
-//       code,
-//       qrcode,
-//       payment,
-//     });
-
-//     await newTicket.save();
-//     res
-//       .status(201)
-//       .json(apiResponse(true, "Ticket successfully created", newTicket));
-//   } catch (error) {
-//     res.status(500).json(apiResponse(false, "Error creating ticket", error));
-//   }
-// };
-
-// export const updateTicket = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   const { code, qrcode, payment } = req.body;
-//   try {
-//     const updatedTicket = await Ticket.findByIdAndUpdate(
-//       id,
-//       { code, qrcode, payment },
-//       { new: true }
-//     );
-//     if (!updatedTicket) {
-//       return res.status(404).json(apiResponse(false, "Ticket not found"));
-//     }
-//     res
-//       .status(200)
-//       .json(apiResponse(true, "Ticket successfully updated", updatedTicket));
-//   } catch (error) {
-//     res.status(500).json(apiResponse(false, "Error updating ticket", error));
-//   }
-// };
-
-// export const deleteTicket = async (req: Request, res: Response) => {
-//   const { id } = req.params;
-//   try {
-//     const deletedTicket = await Ticket.findByIdAndDelete(id);
-//     if (!deletedTicket) {
-//       return res.status(404).json(apiResponse(false, "Ticket not found"));
-//     }
-//     res.status(200).json(apiResponse(true, "Ticket successfully deleted"));
-//   } catch (error) {
-//     res.status(500).json(apiResponse(false, "Error deleting ticket", error));
-//   }
-// };
-
 export const deleteAllTickets = async (req: Request, res: Response) => {
   try {
     // Menghapus semua tiket

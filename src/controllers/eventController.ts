@@ -11,12 +11,22 @@ export const tambahEvent = async (req: Request, res: Response) => {
     const organizerId = req.params.id;
 
     if (!req.file) {
-      return res.status(400).json(apiResponse(true, "File gambar diperlukan!", 400));
+      return res
+        .status(400)
+        .json(apiResponse(true, "File gambar diperlukan!", 400));
     }
 
     const maxSizeInBytes = 1000 * 1024 * 1024;
     if (req.file.size > maxSizeInBytes) {
-      return res.status(400).json(apiResponse(true, "Ukuran gambar terlalu besar! Maksimum 1000MB.", 400));
+      return res
+        .status(400)
+        .json(
+          apiResponse(
+            true,
+            "Ukuran gambar terlalu besar! Maksimum 1000MB.",
+            400
+          )
+        );
     }
 
     const {
@@ -84,8 +94,10 @@ export const tambahEvent = async (req: Request, res: Response) => {
       .json(apiResponse(true, "Berhasil Menambahkan Data", newEvent, 200));
   } catch (error) {
     // Menangani error dan mengirim response
-    console.log(error)
-    res.status(500).json(apiResponse(false, "Gagal Menambahkan Data", error, 500));
+    console.log(error);
+    res
+      .status(500)
+      .json(apiResponse(false, "Gagal Menambahkan Data", error, 500));
   }
 };
 
@@ -94,7 +106,9 @@ export const getEvent = async (req: Request, res: Response) => {
     const events = await Event.find()
       .populate("category", "name")
       .populate("organizer", "organizerName");
-    res.status(200).json(apiResponse(true, "Event berhasil diambil", events, 200));
+    res
+      .status(200)
+      .json(apiResponse(true, "Event berhasil diambil", events, 200));
   } catch (error) {
     res
       .status(500)
@@ -109,9 +123,13 @@ export const getEventById = async (req: Request, res: Response) => {
       .populate("organizer", "organizerName");
 
     if (!event) {
-      return res.status(404).json(apiResponse(false, "Event tidak ditemukan", 404));
+      return res
+        .status(404)
+        .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
-    res.status(200).json(apiResponse(true, "Event berhasil diakses", event, 200));
+    res
+      .status(200)
+      .json(apiResponse(true, "Event berhasil diakses", event, 200));
   } catch (error) {
     res.status(500).json(apiResponse(false, "Error saat mengambil Event", 500));
   }
@@ -135,7 +153,9 @@ export const updateEvent = async (req: Request, res: Response) => {
 
     const event = await Event.findById(req.params.id);
     if (!event) {
-      return res.status(404).json(apiResponse(false, "Event tidak ditemukan", 404));
+      return res
+        .status(404)
+        .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
 
     event.title = title;
@@ -153,10 +173,14 @@ export const updateEvent = async (req: Request, res: Response) => {
     }
 
     await event.save();
-    res.status(200).json(apiResponse(true, "Event berhasil diperbarui", event, 200));
+    res
+      .status(200)
+      .json(apiResponse(true, "Event berhasil diperbarui", event, 200));
   } catch (error) {
     console.log(error);
-    res.status(500).json(apiResponse(false, "Error memperbarui Event", error, 500));
+    res
+      .status(500)
+      .json(apiResponse(false, "Error memperbarui Event", error, 500));
   }
 };
 
@@ -164,9 +188,13 @@ export const hapusEvent = async (req: Request, res: Response) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) {
-      return res.status(404).json(apiResponse(false, "Event tidak ditemukan", 404));
+      return res
+        .status(404)
+        .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
-    res.status(200).json(apiResponse(true, "Event berhasil dihapus", event, 200));
+    res
+      .status(200)
+      .json(apiResponse(true, "Event berhasil dihapus", event, 200));
   } catch (error) {
     res
       .status(500)
@@ -207,7 +235,9 @@ export const getRecentEvents = async (req: Request, res: Response) => {
 
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", response, 200));
+      .json(
+        apiResponse(true, "Berhasil mendapatkan event terbaru", response, 200)
+      );
   } catch (error) {
     res
       .status(500)
@@ -254,7 +284,9 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
     // Mengirim respons dengan format yang disederhanakan
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200));
+      .json(
+        apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200)
+      );
   } catch (error) {
     res
       .status(404)
@@ -266,7 +298,6 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
 export const getEventByRevenue = async (req: Request, res: Response) => {
   try {
     const eventId = req.params.id;
-    console.log("Event ID: ", eventId);
 
     const event = await Event.findById(eventId)
       .populate("organizer", "organizerName")
@@ -275,7 +306,7 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
     if (!event) {
       return res.status(404).json({
         success: false,
-        message: "Event tidak ditemukan"
+        message: "Event tidak ditemukan",
       });
     }
 
@@ -312,15 +343,31 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
     };
 
     // Mengembalikan detail event dalam format response JSON
-    res.status(200).json(apiResponse(true,"Berhasil mendapatkan detail event berdasarkan penghasilan", eventData, 200 ));
-
+    res
+      .status(200)
+      .json(
+        apiResponse(
+          true,
+          "Berhasil mendapatkan detail event berdasarkan penghasilan",
+          eventData,
+          200
+        )
+      );
   } catch (error) {
     // Menangani error jika terjadi kegagalan
     console.error("Error: ", error);
-    res.status(500).json(apiResponse(true,"Tidak Berhasil mendapatkan detail event berdasarkan penghasilan", error, 500 ));
+    res
+      .status(500)
+      .json(
+        apiResponse(
+          true,
+          "Tidak Berhasil mendapatkan detail event berdasarkan penghasilan",
+          error,
+          500
+        )
+      );
   }
 };
-
 
 export const getEventsByOrganizer = async (req: Request, res: Response) => {
   try {
@@ -402,7 +449,9 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan event organizer", error, 500));
+      .json(
+        apiResponse(false, "Gagal mendapatkan event organizer", error, 500)
+      );
   }
 };
 
@@ -416,7 +465,9 @@ export const getEventStats = async (req: Request, res: Response) => {
       .populate("category", "name");
 
     if (!event) {
-      return res.status(404).json(apiResponse(false, "Event tidak ditemukan", 404));
+      return res
+        .status(404)
+        .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
 
     // Penghasilan
