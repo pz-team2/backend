@@ -138,7 +138,7 @@ router.get("/", protectOragnizer, getUsers);
  *       500:
  *         description: Failed to retrieve user data
  */
-router.get("/detail", protect, getUserById);
+router.get("/detail",protect, getUserById);
 
 /**
  * @swagger

@@ -1,10 +1,11 @@
 import express from "express";
+const router = express.Router();
+
+
 import {
   getDashboardStats,
   getDataUser,
 } from "../controllers/dashboardController";
-
-const router = express.Router();
 
 /**
  * @swagger
