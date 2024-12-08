@@ -82,30 +82,62 @@ describe("Ticket Controller", () => {
   });
 
   describe("getTicketByPaymentId", () => {
-    it("should return ticket for a valid payment ID", async () => {
-      req.params.id = "payment123";
-      const mockTicket = {
-        _id: "ticket123",
-        payment: { event: { title: "Event A" }, user: { fullname: "User 1" } },
-      };
+    it("should return the ticket if found", async () => {
+      const mockTicket = [
+        {
+          _id: "ticket123",
+          name: "VIP Ticket",
+          code: "TICK123",
+          payment: {
+            _id: "payment123",
+            event: {
+              _id: "event123",
+              title: "Event A",
+              date: "2023-12-25",
+              address: "Somewhere",
+              description: "A great event",
+              status: "active",
+              startTime: "10:00",
+              finishTime: "14:00",
+              picture: "image.jpg",
+            },
+            user: {
+              _id: "user123",
+              fullname: "User Name",
+              email: "user@example.com",
+              username: "username",
+            },
+          },
+          qrcode: "qrcode123",
+          status: "active",
+        },
+      ];
 
-      (Ticket.find as jest.Mock).mockResolvedValue([mockTicket]);
+      req.params = { id: "payment123" };
+
+      (Ticket.find as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockResolvedValueOnce(mockTicket),
+      });
 
       await getTicketByPaymentId(req as Request, res as Response);
 
       expect(Ticket.find).toHaveBeenCalledWith({ payment: "payment123" });
       expect(statusMock).toHaveBeenCalledWith(200);
       expect(jsonMock).toHaveBeenCalledWith(
-        apiResponse(true, "Ticket found", [mockTicket])
+        apiResponse(true, "Ticket found", mockTicket)
       );
     });
 
-    it("should return 404 if ticket not found", async () => {
-      req.params.id = "payment123";
-      (Ticket.find as jest.Mock).mockResolvedValue([]);
+    it("should return 404 if no ticket is found", async () => {
+      req.params = { id: "payment123" };
+
+      (Ticket.find as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockResolvedValueOnce(null),
+      });
 
       await getTicketByPaymentId(req as Request, res as Response);
 
+      expect(Ticket.find).toHaveBeenCalledWith({ payment: "payment123" });
       expect(statusMock).toHaveBeenCalledWith(404);
       expect(jsonMock).toHaveBeenCalledWith(
         apiResponse(false, "Ticket not found")
@@ -113,11 +145,15 @@ describe("Ticket Controller", () => {
     });
 
     it("should return 500 if an error occurs", async () => {
-      req.params.id = "payment123";
-      (Ticket.find as jest.Mock).mockRejectedValue(new Error("Database error"));
+      req.params = { id: "payment123" };
+
+      (Ticket.find as jest.Mock).mockReturnValueOnce({
+        populate: jest.fn().mockRejectedValueOnce(new Error("Database error")),
+      });
 
       await getTicketByPaymentId(req as Request, res as Response);
 
+      expect(Ticket.find).toHaveBeenCalledWith({ payment: "payment123" });
       expect(statusMock).toHaveBeenCalledWith(500);
       expect(jsonMock).toHaveBeenCalledWith(
         apiResponse(false, "Error fetching ticket", expect.any(Error))

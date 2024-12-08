@@ -20,9 +20,127 @@ import { protectOragnizer } from "../middleware/middlewareOrganizer";
 
 const routerEvent = Router();
 
+// Event Component Schema
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Event:
+ *       type: object
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier for the event
+ *         title:
+ *           type: string
+ *           description: Title of the event
+ *         quota:
+ *           type: integer
+ *           description: Maximum number of attendees
+ *         price:
+ *           type: number
+ *           format: float
+ *           description: Price of the event ticket
+ *         startTime:
+ *           type: string
+ *           format: time
+ *           description: Start time of the event
+ *         finishTime:
+ *           type: string
+ *           format: time
+ *           description: Finish time of the event
+ *         date:
+ *           type: string
+ *           format: date
+ *           description: Date of the event
+ *         address:
+ *           type: string
+ *           description: Address where the event is held
+ *         description:
+ *           type: string
+ *           description: Detailed description of the event
+ *         status:
+ *           type: string
+ *           enum: [planned, ongoing, completed, cancelled]
+ *           description: Current status of the event
+ *         picture:
+ *           type: string
+ *           format: binary
+ *           description: Image of the event
+ *         category:
+ *           type: string
+ *           description: ID of the event's category
+ *         organizer:
+ *           type: string
+ *           description: ID of the event organizer
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: When the event was created
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: When the event was last updated
+ */
+
+/**
+ * @swagger
+ * /api/events/add/{organizerId}:
+ *   post:
+ *     summary: Create a new event
+ *     tags: [Event]
+ *     parameters:
+ *       - in: path
+ *         name: organizerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the organizer creating the event
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               quota:
+ *                 type: integer
+ *               price:
+ *                 type: number
+ *                 format: float
+ *               startTime:
+ *                 type: string
+ *                 format: time
+ *               finishTime:
+ *                 type: string
+ *                 format: time
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               address:
+ *                 type: string
+ *               status:
+ *                 type: string
+ *                 enum: [planned, ongoing, completed, cancelled]
+ *               description:
+ *                 type: string
+ *               category:
+ *                 type: string
+ *               picture:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Event created successfully
+ *       400:
+ *         description: Invalid input
+ */
 routerEvent.post(
   "/add/:id",
-  upload.single("picture"),handleError,
+  upload.single("picture"),
+  handleError,
   tambahEvent,
   (req: Request, res: Response): void => {
     if (req.file) {
@@ -134,6 +252,8 @@ routerEvent.get("/recent", getRecentEvents);
  *   get:
  *     summary: Get events with data organized by the organizer
  *     tags: [Event]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Events retrieved successfully
@@ -162,7 +282,7 @@ routerEvent.get("/recent", getRecentEvents);
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/dataterbaru",protectOragnizer, getDataEventOrganizer);
+routerEvent.get("/dataterbaru", protectOragnizer, getDataEventOrganizer);
 
 /**
  * @swagger
@@ -170,6 +290,8 @@ routerEvent.get("/dataterbaru",protectOragnizer, getDataEventOrganizer);
  *   get:
  *     summary: Get events organized by a specific organizer
  *     tags: [Event]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: organizerId
@@ -232,7 +354,11 @@ routerEvent.get("/dataterbaru",protectOragnizer, getDataEventOrganizer);
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/listevent/:organizerId",protectOragnizer, getEventsByOrganizer);
+routerEvent.get(
+  "/listevent/:organizerId",
+  protectOragnizer,
+  getEventsByOrganizer
+);
 
 // Menampilkan Event Berdasarkan Penghasilan
 /**
@@ -241,6 +367,8 @@ routerEvent.get("/listevent/:organizerId",protectOragnizer, getEventsByOrganizer
  *   get:
  *     summary: Get events sorted by revenue
  *     tags: [Event]
+ *     security:
+ *      - bearerAuth: []
  *     responses:
  *       200:
  *         description: Events retrieved successfully
@@ -271,7 +399,7 @@ routerEvent.get("/listevent/:organizerId",protectOragnizer, getEventsByOrganizer
  *       500:
  *         description: Failed to retrieve events
  */
-routerEvent.get("/event-by-revenue/:id",protectOragnizer, getEventByRevenue);
+routerEvent.get("/event-by-revenue/:id", protectOragnizer, getEventByRevenue);
 
 // Get Event Stats
 /**
@@ -280,6 +408,8 @@ routerEvent.get("/event-by-revenue/:id",protectOragnizer, getEventByRevenue);
  *   get:
  *     summary: Get statistics for an event
  *     tags: [Event]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -312,7 +442,7 @@ routerEvent.get("/event-by-revenue/:id",protectOragnizer, getEventByRevenue);
  *       500:
  *         description: Failed to retrieve event statistics
  */
-routerEvent.get("/events-stats/:id",protectOragnizer, getEventStats);
+routerEvent.get("/events-stats/:id", protectOragnizer, getEventStats);
 
 /**
  * @swagger
@@ -320,6 +450,8 @@ routerEvent.get("/events-stats/:id",protectOragnizer, getEventStats);
  *   delete:
  *     summary: Delete an event
  *     tags: [Event]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -335,14 +467,14 @@ routerEvent.get("/events-stats/:id",protectOragnizer, getEventStats);
  *       500:
  *         description: Failed to delete the event
  */
-routerEvent.delete("/delete/:id",protectOragnizer, hapusEvent);
+routerEvent.delete("/delete/:id", protectOragnizer, hapusEvent);
 
 /**
  * @swagger
  * /api/events/events:
  *   get:
  *     summary: Search events with advanced filters
- *     tags: [Event]
+ *     tags: [Search]
  *     parameters:
  *       - in: query
  *         name: query
@@ -452,7 +584,8 @@ routerEvent.get("/events", searchEvents);
  */
 routerEvent.put(
   "/update/:id",
-  upload.single("picture"),handleError,
+  upload.single("picture"),
+  handleError,
   updateEvent,
   (req: Request, res: Response): void => {
     if (req.file) {

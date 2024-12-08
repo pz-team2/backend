@@ -147,121 +147,156 @@ describe("Event Controller", () => {
     });
   });
 
-  // describe("getRecentEvents", () => {
-  //   it("should return recent events", async () => {
-  //     const mockEvents = [
-  //       { title: "Recent Event 1", date: "2024-01-01" },
-  //       { title: "Recent Event 2", date: "2024-02-01" },
-  //     ];
+  describe("getRecentEvents", () => {
+    it("should return recent events", async () => {
+      const mockEvents = [
+        { title: "Recent Event 1", date: "2024-01-01" },
+        { title: "Recent Event 2", date: "2024-02-01" },
+      ];
 
-  //     (Event.find as jest.Mock).mockReturnValue({
-  //       sort: jest.fn().mockReturnThis(),
-  //       skip: jest.fn().mockReturnThis(),
-  //       limit: jest.fn().mockResolvedValueOnce(mockEvents),
-  //     });
+      const mockTotal = 2;
 
-  //     mockRequest.query = { page: "1", limit: "2" };
+      (Event.find as jest.Mock).mockReturnValueOnce({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(mockEvents),
+      });
 
-  //     await eventController.getRecentEvents(
-  //       mockRequest as Request,
-  //       mockResponse as Response
-  //     );
+      (Event.countDocuments as jest.Mock).mockResolvedValueOnce(mockTotal);
 
-  //     expect(mockResponse.status).toHaveBeenCalledWith(200);
-  //     expect(mockResponse.json).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         success: true,
-  //         message: "Berhasil mendapatkan event terbaru",
-  //         data: {
-  //           data: mockEvents,
-  //           pagination: expect.objectContaining({
-  //             currentPage: 1,
-  //             limit: 2,
-  //           }),
-  //         },
-  //       })
-  //     );
-  //   });
-  // });
+      mockRequest.query = { page: "1", limit: "2" };
 
-  // describe("getDataEventOrganizer", () => {
-  //   it("should return event data by organizer", async () => {
-  //     const mockEvents = [
-  //       {
-  //         _id: "eventId",
-  //         title: "Test Event",
-  //         date: new Date(),
-  //         picture: "/path/to/image",
-  //         organizer: { _id: "organizerId", organizerName: "Organizer Name" },
-  //         status: "active",
-  //       },
-  //     ];
-  //     const mockPayments = [{ total: 10 }];
+      await eventController.getRecentEvents(
+        mockRequest as Request,
+        mockResponse as Response
+      );
 
-  //     (Event.find as jest.Mock).mockReturnValue({
-  //       populate: jest.fn().mockResolvedValueOnce(mockEvents),
-  //     });
-  //     (Payment.aggregate as jest.Mock).mockResolvedValueOnce(mockPayments);
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mendapatkan event terbaru",
+          data: {
+            data: mockEvents,
+            pagination: expect.objectContaining({
+              total: mockTotal,
+              page: 1,
+              lastPage: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            }),
+          },
+        })
+      );
+    });
+  });
 
-  //     mockRequest.params = { organizerId: "organizerId" };
+  describe("getDataEventOrganizer", () => {
+    it("should return event data by organizer", async () => {
+      const mockEvents = [
+        {
+          _id: "eventId",
+          title: "Test Event",
+          date: new Date(),
+          picture: "/path/to/image",
+          organizer: { _id: "organizerId", organizerName: "Organizer Name" },
+          status: "active",
+        },
+      ];
 
-  //     await eventController.getDataEventOrganizer(
-  //       mockRequest as Request,
-  //       mockResponse as Response
-  //     );
+      (Event.find as jest.Mock).mockReturnValue({
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValueOnce(mockEvents),
+      });
 
-  //     expect(mockResponse.status).toHaveBeenCalledWith(200);
-  //     expect(mockResponse.json).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         success: true,
-  //         message: "Berhasil mendapatkan event organizer",
-  //         data: [
-  //           expect.objectContaining({
-  //             id: mockEvents[0]._id,
-  //             title: mockEvents[0].title,
-  //             ticketsSold: 10,
-  //           }),
-  //         ],
-  //       })
-  //     );
-  //   });
-  // });
+      (Payment.aggregate as jest.Mock).mockResolvedValueOnce([{ total: 10 }]);
 
-  // describe("getEventsByOrganizer", () => {
-  //   it("should return events by organizer", async () => {
-  //     const mockEvents = [
-  //       { title: "Event 1", date: "2024-01-01", organizer: "organizerId" },
-  //       { title: "Event 2", date: "2024-02-01", organizer: "organizerId" },
-  //     ];
+      mockRequest.params = { organizerId: "organizerId" };
 
-  //     (Event.find as jest.Mock).mockReturnValue({
-  //       populate: jest.fn().mockResolvedValueOnce(mockEvents),
-  //     });
+      await eventController.getDataEventOrganizer(
+        mockRequest as Request,
+        mockResponse as Response
+      );
 
-  //     mockRequest.params = { organizerId: "organizerId" };
-  //     mockRequest.query = { page: "1", limit: "2" };
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mendapatkan event terbaru",
+          data: expect.arrayContaining([
+            expect.objectContaining({
+              id: "eventId",
+              title: "Test Event",
+              ticketsSold: 10,
+            }),
+          ]),
+        })
+      );
+    });
+  });
 
-  //     await eventController.getEventsByOrganizer(
-  //       mockRequest as Request,
-  //       mockResponse as Response
-  //     );
+  describe("getEventsByOrganizer", () => {
+    it("should return events by organizer", async () => {
+      const mockEvents = [
+        {
+          _id: "eventId1",
+          title: "Event 1",
+          date: new Date("2024-01-01"),
+          organizer: "organizerId",
+        },
+        {
+          _id: "eventId2",
+          title: "Event 2",
+          date: new Date("2024-02-01"),
+          organizer: "organizerId",
+        },
+      ];
 
-  //     expect(mockResponse.status).toHaveBeenCalledWith(200);
-  //     expect(mockResponse.json).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         success: true,
-  //         message: "Berhasil mendapatkan event organizer",
-  //         data: {
-  //           data: mockEvents,
-  //           pagination: expect.objectContaining({
-  //             currentPage: 1,
-  //             limit: 2,
-  //           }),
-  //         },
-  //       })
-  //     );
-  //   });
-  // });
+      const mockTotal = 2;
+
+      (Event.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValueOnce(mockEvents),
+      });
+
+      (Event.countDocuments as jest.Mock).mockResolvedValueOnce(mockTotal);
+
+      mockRequest.params = { organizerId: "organizerId" };
+      mockRequest.query = {
+        page: "1",
+        limit: "2",
+        sortBy: "date",
+        sortOrder: "desc",
+      };
+
+      await eventController.getEventsByOrganizer(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
+      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mendapatkan event organizer",
+          data: {
+            data: mockEvents,
+            pagination: expect.objectContaining({
+              total: mockTotal,
+              page: 1,
+              lastPage: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            }),
+          },
+        })
+      );
+    });
+  });
 
   describe("getEventStats", () => {
     it("should return event stats successfully", async () => {

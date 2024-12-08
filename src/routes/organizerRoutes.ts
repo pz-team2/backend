@@ -138,12 +138,167 @@ const router = Router();
  *                   example: Terjadi Kesalahan Saat Login
  */
 router.post("/login", LoginOrganizer);
-router.get("/",protectOragnizer, getOrganizers);
-router.get('/getdata',protectOragnizer, getOrganizerByRole)
-router.get('/getdataevent',protectOragnizer, getEventsByOrganizerLatest)
-router.get('/profile',protectOragnizer, getOrganizerByOne)
-router.post("/add",protectOragnizer, createOrganizer);
-router.get("/detail/:id",protectOragnizer, getOrganizerById);
+
+/**
+ * @swagger
+ * /api/organizers:
+ *   get:
+ *     summary: Retrieve all organizers
+ *     tags: [Organizer]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all organizers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Organizer'
+ *       500:
+ *         description: Server error
+ */
+router.get("/", protectOragnizer, getOrganizers);
+
+/**
+ * @swagger
+ * /api/organizers/getdata:
+ *   get:
+ *     summary: Retrieve all organizers with role "organizer"
+ *     tags: [Organizer]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved organizers by role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Organizer'
+ *       404:
+ *         description: No organizers found
+ */
+router.get("/getdata", protectOragnizer, getOrganizerByRole);
+
+/**
+ * @swagger
+ * /api/organizers/getdataevent:
+ *   get:
+ *     summary: Retrieve the latest events created by the authenticated organizer
+ *     tags: [Organizer]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved latest events
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   title:
+ *                     type: string
+ *                   picture:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                     format: date-time
+ *                   status:
+ *                     type: string
+ *                   organizerName:
+ *                     type: string
+ *                   ticketsSold:
+ *                     type: integer
+ *       404:
+ *         description: No events found
+ */
+router.get("/getdataevent", protectOragnizer, getEventsByOrganizerLatest);
+
+/**
+ * @swagger
+ * /api/organizers/profile:
+ *   get:
+ *     summary: Retrieve profile of the authenticated organizer
+ *     tags: [Organizer]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Organizer'
+ *       404:
+ *         description: Organizer not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/profile", protectOragnizer, getOrganizerByOne);
+
+/**
+ * @swagger
+ * /api/organizers/add:
+ *   post:
+ *     summary: Create a new organizer
+ *     tags: [Organizer]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Organizer'
+ *     responses:
+ *       201:
+ *         description: Successfully created a new organizer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Organizer'
+ *       400:
+ *         description: Email already exists
+ *       500:
+ *         description: Server error
+ */
+router.post("/add", protectOragnizer, createOrganizer);
+
+/**
+ * @swagger
+ * /api/organizers/detail/{id}:
+ *   get:
+ *     summary: Retrieve organizer details by ID
+ *     tags: [Organizer]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the organizer
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved organizer details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Organizer'
+ *       404:
+ *         description: Organizer not found
+ *       500:
+ *         description: Server error
+ */
+router.get("/detail/:id", protectOragnizer, getOrganizerById);
 
 /**
  * @swagger
@@ -187,7 +342,7 @@ router.get("/detail/:id",protectOragnizer, getOrganizerById);
  *       500:
  *         description: Server error
  */
-router.put("/update/:id",protectOragnizer, updateOrganizer);
+router.put("/update/:id", protectOragnizer, updateOrganizer);
 
 /**
  * @swagger
@@ -259,9 +414,180 @@ router.put("/updateprofile", protectOragnizer, updateOrganizerById);
  *         description: Server error
  */
 router.put("/updatepassword", protectOragnizer, updatepassword);
-router.delete("/delete/:id",protectOragnizer, deleteOrganizer);
-router.get("/events/:organizerId",protectOragnizer, searchEventsByOrganizer);
-router.get("/event",protectOragnizer, getEventsByOrganizer);
+
+/**
+ * @swagger
+ * /api/organizers/delete/{id}:
+ *   delete:
+ *     summary: Delete an organizer by ID
+ *     tags: [Organizer]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the organizer to delete
+ *     responses:
+ *       200:
+ *         description: Successfully deleted organizer
+ *       404:
+ *         description: Organizer not found
+ *       500:
+ *         description: Server error
+ */
+router.delete("/delete/:id", protectOragnizer, deleteOrganizer);
+
+/**
+ * @swagger
+ * /api/search/events/organizer/{organizerId}:
+ *   get:
+ *     summary: Search events created by a specific organizer
+ *     tags: [Search]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: organizerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Organizer ID to filter events
+ *     responses:
+ *       200:
+ *         description: Successfully searched events by organizer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Organizer ID is required
+ *       500:
+ *         description: Server error
+ */
+router.get("/events/:organizerId", protectOragnizer, searchEventsByOrganizer);
+
+/**
+ * @swagger
+ * /api/organizers/event:
+ *   get:
+ *     summary: Retrieve all events created by the authenticated organizer
+ *     tags: [Organizer]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter events by status
+ *       - in: query
+ *         name: startDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter events starting after this date
+ *       - in: query
+ *         name: endDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter events ending before this date
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *         description: Number of events per page
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category ID
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved events for the authenticated organizer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       date:
+ *                         type: string
+ *                         format: date-time
+ *                       status:
+ *                         type: string
+ *                       category:
+ *                         type: string
+ *                       organizerName:
+ *                         type: string
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     total:
+ *                       type: integer
+ *                     page:
+ *                       type: integer
+ *                     lastPage:
+ *                       type: integer
+ *                     hasNextPage:
+ *                       type: boolean
+ *                     hasPrevPage:
+ *                       type: boolean
+ *       404:
+ *         description: No events found
+ *       500:
+ *         description: Server error
+ */
+router.get("/event", protectOragnizer, getEventsByOrganizer);
+
+/**
+ * @swagger
+ * /api/organizers/report:
+ *   get:
+ *     summary: Get a payment report for the authenticated organizer
+ *     tags: [Organizer]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved payment report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 revenue:
+ *                   type: number
+ *                   description: Total revenue from events
+ *                 transactions:
+ *                   type: integer
+ *                   description: Total number of transactions
+ *                 ticketsSold:
+ *                   type: integer
+ *                   description: Total number of tickets sold
+ *       404:
+ *         description: No payment data found
+ *       500:
+ *         description: Server error
+ */
 router.get("/report", protectOragnizer, getOrganizerPaymentReport);
 
 // Get Organizer Dashboard Stats
@@ -296,4 +622,5 @@ router.get("/report", protectOragnizer, getOrganizerPaymentReport);
  *         description: Server error
  */
 router.get("/organizer-stats", protectOragnizer, getOrganizerStats);
+
 export default router;

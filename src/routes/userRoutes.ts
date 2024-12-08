@@ -68,6 +68,8 @@ const router = express.Router();
  *   get:
  *     summary: Retrieve all users
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Successfully retrieved all users
@@ -86,14 +88,9 @@ const router = express.Router();
  *                     users:
  *                       type: array
  *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                           username:
- *                             type: string
- *                           email:
- *                             type: string
+ *                         $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Unauthorized access
  *       500:
  *         description: Failed to retrieve users
  */
@@ -105,13 +102,15 @@ router.get("/", protectOragnizer, getUsers);
  *   get:
  *     summary: Retrieve a user by ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         schema:
  *           type: string
  *         required: true
- *         description: User ID
+ *         description: The ID of the user
  *     responses:
  *       200:
  *         description: Successfully retrieved user
@@ -125,20 +124,13 @@ router.get("/", protectOragnizer, getUsers);
  *                 message:
  *                   type: string
  *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: string
- *                     username:
- *                       type: string
- *                     email:
- *                       type: string
+ *                   $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:
  *         description: Failed to retrieve user data
  */
-router.get("/detail",protect, getUserById);
+router.get("/detail", protect, getUserById);
 
 /**
  * @swagger
@@ -146,6 +138,8 @@ router.get("/detail",protect, getUserById);
  *   put:
  *     summary: Update user information
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -179,7 +173,7 @@ router.get("/detail",protect, getUserById);
  *                 message:
  *                   type: string
  *                 data:
- *                   type: object
+ *                   $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:
@@ -220,8 +214,10 @@ router.get("/users", searchUsers);
  * @swagger
  * /api/users/updatePassword:
  *   put:
- *     summary: Update user password
+ *     summary: Update user's password
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -231,16 +227,19 @@ router.get("/users", searchUsers);
  *             properties:
  *               password:
  *                 type: string
+ *                 description: Current password
  *               pwbaru:
  *                 type: string
+ *                 description: New password
  *               confirmpw:
  *                 type: string
+ *                 description: Confirm new password
  *     responses:
  *       200:
  *         description: Password updated successfully
  *       404:
  *         description: User not found
- *       505:
+ *       500:
  *         description: Failed to update password
  */
 router.put("/updatePassword", protect, updatePassword);

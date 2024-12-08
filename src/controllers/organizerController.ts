@@ -13,7 +13,14 @@ export const getOrganizers = async (req: Request, res: Response) => {
     const organizers = await Organizer.find();
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan Data Organizer", organizers, 200));
+      .json(
+        apiResponse(
+          true,
+          "Berhasil mendapatkan Data Organizer",
+          organizers,
+          200
+        )
+      );
   } catch (error) {
     res
       .status(500)
@@ -21,17 +28,16 @@ export const getOrganizers = async (req: Request, res: Response) => {
   }
 };
 
-//Data Organizer Bedasarkan Role 
+//Data Organizer Bedasarkan Role
 export const getOrganizerByRole = async (req: Request, res: Response) => {
   try {
-    const organizer = await Organizer.find({ role: 'organizer' })
+    const organizer = await Organizer.find({ role: "organizer" });
 
     res.status(200).json(apiResponse(false, "Data Berhasil", organizer, 200));
-
   } catch (error) {
-    res.status(404).json(apiResponse(false, "Data Tidak Berhasil", error, 404))
+    res.status(404).json(apiResponse(false, "Data Tidak Berhasil", error, 404));
   }
-}
+};
 
 // Mendapatkan organizer berdasarkan ID
 export const getOrganizerById = async (req: Request, res: Response) => {
@@ -47,7 +53,9 @@ export const getOrganizerById = async (req: Request, res: Response) => {
     }
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil Mendapatkan organizer", organizer, 200));
+      .json(
+        apiResponse(true, "Berhasil Mendapatkan organizer", organizer, 200)
+      );
   } catch (error) {
     res
       .status(500)
@@ -55,17 +63,21 @@ export const getOrganizerById = async (req: Request, res: Response) => {
   }
 };
 
-export const getOrganizerByOne  = async (req: Request, res: Response) => {
+export const getOrganizerByOne = async (req: Request, res: Response) => {
   try {
     const organizerId = req.organizer.id;
 
     const organizer = await Organizer.findById(organizerId);
     if (!organizer) {
-      return res.status(404).json(apiResponse(false, "Organizer not found", null, 404));
+      return res
+        .status(404)
+        .json(apiResponse(false, "Organizer not found", null, 404));
     }
     res
       .status(200)
-      .json(apiResponse(true, "Successfully retrieved organizer", organizer, 200));
+      .json(
+        apiResponse(true, "Successfully retrieved organizer", organizer, 200)
+      );
   } catch (error) {
     res
       .status(500)
@@ -73,10 +85,11 @@ export const getOrganizerByOne  = async (req: Request, res: Response) => {
   }
 };
 
-
-export const getEventsByOrganizerLatest = async (req: Request, res: Response) => {
+export const getEventsByOrganizerLatest = async (
+  req: Request,
+  res: Response
+) => {
   try {
-
     const organizerId = req.organizer.id;
     console.log(organizerId);
 
@@ -84,7 +97,7 @@ export const getEventsByOrganizerLatest = async (req: Request, res: Response) =>
       .populate("organizer", "organizerName")
       .sort({ date: -1 });
 
-    console.log(events)
+    console.log(events);
     const eventData = await Promise.all(
       events.map(async (event) => {
         const tiketTerjual = await Payment.aggregate([
@@ -111,7 +124,9 @@ export const getEventsByOrganizerLatest = async (req: Request, res: Response) =>
     // Mengirim respons dengan format yang disederhanakan
     res
       .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200));
+      .json(
+        apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200)
+      );
   } catch (error) {
     res
       .status(404)
@@ -121,14 +136,21 @@ export const getEventsByOrganizerLatest = async (req: Request, res: Response) =>
 
 // Menambahkan organizer baru
 export const createOrganizer = async (req: Request, res: Response) => {
-  const { username, phoneNumber, organizerName, email, password, role, status } =
-    req.body;
+  const {
+    username,
+    phoneNumber,
+    organizerName,
+    email,
+    password,
+    role,
+    status,
+  } = req.body;
   try {
     const existingOrganizer = await Organizer.findOne({ email });
     if (existingOrganizer) {
       return res
         .status(400)
-        .json(apiResponse(false, 'Email sudah terdaftar', null, 400));
+        .json(apiResponse(false, "Email sudah terdaftar", null, 400));
     }
     const hashpassword = await bcrypt.hash(password, 10);
 
@@ -144,7 +166,9 @@ export const createOrganizer = async (req: Request, res: Response) => {
     await newOrganizer.save();
     res
       .status(201)
-      .json(apiResponse(true, "Organizer berhasil ditambahkan", newOrganizer, 201));
+      .json(
+        apiResponse(true, "Organizer berhasil ditambahkan", newOrganizer, 201)
+      );
   } catch (error) {
     res
       .status(500)
@@ -170,7 +194,12 @@ export const updateOrganizer = async (req: Request, res: Response) => {
     res
       .status(200)
       .json(
-        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer, 200)
+        apiResponse(
+          true,
+          "Organizer berhasil diperbarui",
+          updatedOrganizer,
+          200
+        )
       );
   } catch (error) {
     res
@@ -211,7 +240,9 @@ export const updatepassword = async (req: Request, res: Response) => {
     res.status(200).json(apiResponse(true, "Berhasil Update Password", 200));
   } catch (error) {
     console.log(error);
-    res.status(505).json(apiResponse(false, "Gagal Update Password", error, 505));
+    res
+      .status(505)
+      .json(apiResponse(false, "Gagal Update Password", error, 505));
   }
 };
 
@@ -232,7 +263,12 @@ export const updateOrganizerById = async (req: Request, res: Response) => {
     res
       .status(200)
       .json(
-        apiResponse(true, "Organizer berhasil diperbarui", updatedOrganizer, 200)
+        apiResponse(
+          true,
+          "Organizer berhasil diperbarui",
+          updatedOrganizer,
+          200
+        )
       );
   } catch (error) {
     res
@@ -340,10 +376,11 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan event organizer", error, 500));
+      .json(
+        apiResponse(false, "Gagal mendapatkan event organizer", error, 500)
+      );
   }
 };
-
 
 // Get Organizer Stats
 export const getOrganizerStats = async (req: Request, res: Response) => {
@@ -356,7 +393,11 @@ export const getOrganizerStats = async (req: Request, res: Response) => {
       return res
         .status(404)
         .json(
-          apiResponse(false, "Tidak ada event terkait dengan organizer ini", 404)
+          apiResponse(
+            false,
+            "Tidak ada event terkait dengan organizer ini",
+            404
+          )
         );
     }
 

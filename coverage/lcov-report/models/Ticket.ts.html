@@ -3,7 +3,7 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for models/Payment.ts</title>
+    <title>Code coverage report for models/Ticket.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
@@ -19,7 +19,7 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../index.html">All files</a> / <a href="index.html">models</a> Payment.ts</h1>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">models</a> Ticket.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
@@ -86,12 +86,17 @@
 <a name='L21'></a><a href='#L21'>21</a>
 <a name='L22'></a><a href='#L22'>22</a>
 <a name='L23'></a><a href='#L23'>23</a>
-<a name='L24'></a><a href='#L24'>24</a>
-<a name='L25'></a><a href='#L25'>25</a>
-<a name='L26'></a><a href='#L26'>26</a>
-<a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<a name='L24'></a><a href='#L24'>24</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -102,48 +107,31 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&nbsp;
-import mongoose, { Document, Schema, Model } from 'mongoose';
-import { IEvent } from './Event'; // Import tipe IEvent
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import mongoose, { Document, Schema, Model } from "mongoose";
 &nbsp;
-export interface IPayment extends Document {
-  amount: number;
-  method: string;
-  user: mongoose.Types.ObjectId;
-  event: mongoose.Types.ObjectId;
-  paymentStatus: string;
-  quantity: number;
-  order_id: string;
-  // price: number;
+export interface ITicket extends Document {
+  name: string;
+  code: string;
+  payment: mongoose.Types.ObjectId;
+  qrcode: String;
+  status: string;
 }
 &nbsp;
-const paymentSchema: Schema&lt;IPayment&gt; = new Schema({
-  amount: { type: Number, required: true },
-  method: { type: String, required: false },
-  paymentStatus: { type: String, required: true },
-  quantity: { type: Number, required: true },
-  order_id: { type: String, required: true },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  event: { type: Schema.Types.ObjectId, ref: 'Event', required: true },
-}, {timestamps: true});
+const ticketSchema: Schema&lt;ITicket&gt; = new Schema(
+  {
+    name: { type: String, required: true },
+    code: { type: String, required: true },
+    payment: { type: Schema.Types.ObjectId, ref: "Payment", required: true },
+    qrcode: { type: String, required: true },
+    status: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 &nbsp;
-const Payment: Model&lt;IPayment&gt; = mongoose.model&lt;IPayment&gt;('Payment', paymentSchema);
-export default Payment;
+const Ticket: Model&lt;ITicket&gt; = mongoose.model&lt;ITicket&gt;("Ticket", ticketSchema);
+export default Ticket;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->

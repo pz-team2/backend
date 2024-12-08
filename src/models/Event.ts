@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 // Definisikan interface untuk Event
 export interface IEvent extends Document {
@@ -20,8 +20,8 @@ export interface IEvent extends Document {
 
 // Buat skema menggunakan interface
 const eventSchema: Schema<IEvent> = new Schema({
-  organizer: { type: Schema.Types.ObjectId, ref: 'Organizer',  required: true},
-  category: { type: Schema.Types.ObjectId, ref: 'Category', required: true},
+  organizer: { type: Schema.Types.ObjectId, ref: "Organizer", required: true },
+  category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
   title: { type: String, required: true },
   date: { type: Date, required: true },
   address: { type: String, required: true },
@@ -31,9 +31,9 @@ const eventSchema: Schema<IEvent> = new Schema({
   price: { type: Number, required: false },
   startTime: { type: String, required: true },
   finishTime: { type: String, required: true },
-  picture: { type: String, required: true }
+  picture: { type: String, required: true },
 });
 
 // Ekspor model
-const Event: Model<IEvent> = mongoose.model<IEvent>('Event', eventSchema);
+const Event: Model<IEvent> = mongoose.model<IEvent>("Event", eventSchema);
 export default Event;
