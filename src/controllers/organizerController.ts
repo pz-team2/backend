@@ -43,7 +43,7 @@ export const getOrganizerByRole = async (req: Request, res: Response) => {
 export const getOrganizerById = async (req: Request, res: Response) => {
   const organizerId = req.params.id;
 
-  console.log("Organizer ID:", organizerId);
+  // console.log("Organizer ID:", organizerId);
   try {
     const organizer = await Organizer.findById(organizerId);
     if (!organizer) {
@@ -91,13 +91,13 @@ export const getEventsByOrganizerLatest = async (
 ) => {
   try {
     const organizerId = req.organizer.id;
-    console.log(organizerId);
+    // console.log(organizerId);
 
     const events = await Event.find({ organizer: organizerId })
       .populate("organizer", "organizerName")
       .sort({ date: -1 });
 
-    console.log(events);
+    // console.log(events);
     const eventData = await Promise.all(
       events.map(async (event) => {
         const tiketTerjual = await Payment.aggregate([
@@ -239,7 +239,7 @@ export const updatepassword = async (req: Request, res: Response) => {
     await datapassword.save();
     res.status(200).json(apiResponse(true, "Berhasil Update Password", 200));
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res
       .status(505)
       .json(apiResponse(false, "Gagal Update Password", error, 505));
@@ -298,7 +298,7 @@ export const deleteOrganizer = async (req: Request, res: Response) => {
 export const getEventsByOrganizer = async (req: Request, res: Response) => {
   try {
     const organizerId = req.organizer.id;
-    console.log("Searching for organizerId:", organizerId);
+    // console.log("Searching for organizerId:", organizerId);
 
     const {
       status,
@@ -313,7 +313,7 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 
     // Build query
     let query: any = { organizer: organizerId };
-    console.log("Query:", query);
+    // console.log("Query:", query);
 
     // Status filter
     if (status) {

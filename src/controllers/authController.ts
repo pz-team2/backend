@@ -25,10 +25,10 @@ const getAccessToken = async (): Promise<string> => {
   try {
     const { token } = await oauth2Client.getAccessToken();
     if (!token) throw new Error("Gagal !! access token");
-    console.log("Access Token: ", token);
+    // console.log("Access Token: ", token);
     return token;
   } catch (error) {
-    console.error("Error access token:", error);
+    // console.log("Error access token:", error);
     throw new Error("Tidak Bisa Mendapatkan Acces Token");
   }
 };
@@ -98,7 +98,7 @@ export const Register: RequestHandler = async (
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Error sending email: ", error);
+        // console.log("Error sending email: ", error);
         res.status(500).json(apiResponse(false, "Email Gagal Terkirim", error));
       } else {
         res
@@ -109,11 +109,10 @@ export const Register: RequestHandler = async (
               "Registrasi Berhasil Silahkan Verifikasi Email !!"
             )
           );
-          
       }
     });
   } catch (error) {
-    console.error("Terjadi Kesalahan Saat Registrasi ", error);
+    // console.log("Terjadi Kesalahan Saat Registrasi ", error);
     res
       .status(500)
       .json(apiResponse(false, "Terjadi Kesalahan Saat Registrasi "));
@@ -142,7 +141,9 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .json(apiResponse(true, "Berhasil Login ", { token, username: user.username }));
+      .json(
+        apiResponse(true, "Berhasil Login ", { token, username: user.username })
+      );
   } catch (error) {
     return res
       .status(500)
@@ -174,7 +175,7 @@ export const verifyEmail: RequestHandler = async (
       })
     );
   } catch (error) {
-    console.error("Error during email verification:", error);
+    // console.log("Error during email verification:", error);
     res
       .status(500)
       .json(

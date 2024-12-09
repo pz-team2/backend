@@ -355,7 +355,7 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
       );
   } catch (error) {
     // Menangani error jika terjadi kegagalan
-    console.error("Error: ", error);
+    console.log("Error: ", error);
     res
       .status(500)
       .json(
@@ -372,7 +372,7 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
 export const getEventsByOrganizer = async (req: Request, res: Response) => {
   try {
     const organizerId = req.params.organizerId;
-    console.log("Searching for organizerId:", organizerId);
+    // console.log("Searching for organizerId:", organizerId);
 
     const {
       status,
@@ -387,7 +387,7 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
 
     // Build query
     let query: any = { organizer: organizerId };
-    console.log("Query:", query);
+    // console.log("Query:", query);
 
     // Status filter
     if (status) {
@@ -427,7 +427,7 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
       .populate("organizer", "organizerName email phoneNumber")
       .exec();
 
-    console.log("Found events:", events);
+    // console.log("Found events:", events);
 
     const lastPage = Math.ceil(total / Number(limit));
     const response = {

@@ -72,7 +72,7 @@ export const updatePassword = async (req: Request, res: Response) => {
   try {
     const { password, pwbaru, confirmpw } = req.body;
     const userId = req.user.id;
-    console.log(userId);
+    // console.log(userId);
 
     const datapassword = await User.findById(userId);
 
@@ -98,7 +98,7 @@ export const updatePassword = async (req: Request, res: Response) => {
     await datapassword.save();
     res.status(200).json(apiResponse(true, "Berhasil Update Password"));
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(505).json(apiResponse(false, "Gagal Update Password", error));
   }
 };
