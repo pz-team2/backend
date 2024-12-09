@@ -9,7 +9,8 @@
     "dev": "nodemon src/app.ts",
     "watch": "tsc --watch",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "cov": "jest --coverage --collectCoverageFrom='**/src/controllers/**/*.ts' --coverageDirectory='coverage/controllers'"
   },
   "dependencies": {
     "@types/sinon": "^17.0.3",
