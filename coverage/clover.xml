@@ -1,9 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1733677258782" clover="3.2.0">
-  <project timestamp="1733677258783" name="All files">
-    <metrics statements="415" coveredstatements="310" conditionals="135" coveredconditionals="55" methods="76" coveredmethods="68" elements="626" coveredelements="433" complexity="0" loc="415" ncloc="415" packages="3" files="12" classes="12"/>
+<coverage generated="1733751328631" clover="3.2.0">
+  <project timestamp="1733751328631" name="All files">
+    <metrics statements="668" coveredstatements="537" conditionals="223" coveredconditionals="121" methods="111" coveredmethods="100" elements="1002" coveredelements="758" complexity="0" loc="668" ncloc="668" packages="3" files="18" classes="18"/>
     <package name="controllers">
-      <metrics statements="389" coveredstatements="284" conditionals="133" coveredconditionals="53" methods="75" coveredmethods="67"/>
+      <metrics statements="637" coveredstatements="506" conditionals="221" coveredconditionals="119" methods="110" coveredmethods="99"/>
+      <file name="authController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\authController.ts">
+        <metrics statements="65" coveredstatements="46" conditionals="9" coveredconditionals="4" methods="9" coveredmethods="6"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="12" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="45" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="100" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="116" count="1" type="stmt"/>
+        <line num="123" count="2" type="stmt"/>
+        <line num="124" count="2" type="stmt"/>
+        <line num="126" count="2" type="stmt"/>
+        <line num="127" count="2" type="stmt"/>
+        <line num="129" count="2" type="cond" truecount="0" falsecount="1"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="133" count="2" type="stmt"/>
+        <line num="134" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="139" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+        <line num="142" count="1" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="157" count="3" type="stmt"/>
+        <line num="158" count="3" type="stmt"/>
+        <line num="160" count="3" type="stmt"/>
+        <line num="161" count="3" type="stmt"/>
+        <line num="163" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="164" count="1" type="stmt"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="168" count="1" type="stmt"/>
+        <line num="169" count="1" type="stmt"/>
+        <line num="170" count="1" type="stmt"/>
+        <line num="172" count="1" type="stmt"/>
+        <line num="179" count="1" type="stmt"/>
+      </file>
       <file name="categoryController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\categoryController.ts">
         <metrics statements="39" coveredstatements="31" conditionals="3" coveredconditionals="0" methods="10" coveredmethods="10"/>
         <line num="2" count="1" type="stmt"/>
@@ -46,8 +114,47 @@
         <line num="90" count="1" type="stmt"/>
         <line num="92" count="0" type="stmt"/>
       </file>
+      <file name="dashboardController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\dashboardController.ts">
+        <metrics statements="36" coveredstatements="29" conditionals="16" coveredconditionals="8" methods="4" coveredmethods="4"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="47" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="51" count="2" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+        <line num="56" count="2" type="cond" truecount="0" falsecount="1"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="60" count="2" type="cond" truecount="2" falsecount="1"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="63" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="66" count="2" type="cond" truecount="0" falsecount="1"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="71" count="2" type="stmt"/>
+        <line num="74" count="2" type="stmt"/>
+        <line num="77" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="78" count="2" type="stmt"/>
+        <line num="83" count="2" type="stmt"/>
+        <line num="149" count="2" type="stmt"/>
+        <line num="152" count="2" type="stmt"/>
+        <line num="164" count="2" type="cond" truecount="3" falsecount="0"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="173" count="1" type="stmt"/>
+        <line num="179" count="0" type="stmt"/>
+        <line num="180" count="0" type="stmt"/>
+      </file>
       <file name="eventController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\eventController.ts">
-        <metrics statements="134" coveredstatements="87" conditionals="77" coveredconditionals="37" methods="22" coveredmethods="18"/>
+        <metrics statements="131" coveredstatements="84" conditionals="77" coveredconditionals="37" methods="22" coveredmethods="18"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
@@ -147,10 +254,8 @@
         <line num="372" count="1" type="stmt"/>
         <line num="373" count="1" type="stmt"/>
         <line num="374" count="1" type="stmt"/>
-        <line num="375" count="1" type="stmt"/>
         <line num="386" count="1" type="stmt"/>
         <line num="389" count="1" type="stmt"/>
-        <line num="390" count="1" type="stmt"/>
         <line num="393" count="1" type="cond" truecount="0" falsecount="1"/>
         <line num="394" count="0" type="stmt"/>
         <line num="398" count="1" type="cond" truecount="2" falsecount="1"/>
@@ -164,7 +269,6 @@
         <line num="416" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="417" count="1" type="stmt"/>
         <line num="422" count="1" type="stmt"/>
-        <line num="430" count="1" type="stmt"/>
         <line num="432" count="1" type="stmt"/>
         <line num="433" count="1" type="stmt"/>
         <line num="444" count="1" type="stmt"/>
@@ -183,8 +287,30 @@
         <line num="490" count="1" type="stmt"/>
         <line num="500" count="0" type="stmt"/>
       </file>
+      <file name="loginOrganizer.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\loginOrganizer.ts">
+        <metrics statements="19" coveredstatements="19" conditionals="4" coveredconditionals="4" methods="2" coveredmethods="2"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="10" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+        <line num="17" count="3" type="cond" truecount="1" falsecount="0"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="22" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+      </file>
       <file name="organizerController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\organizerController.ts">
-        <metrics statements="138" coveredstatements="98" conditionals="39" coveredconditionals="11" methods="27" coveredmethods="23"/>
+        <metrics statements="132" coveredstatements="96" conditionals="39" coveredconditionals="11" methods="27" coveredmethods="23"/>
         <line num="2" count="1" type="stmt"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
@@ -203,7 +329,6 @@
         <line num="38" count="1" type="stmt"/>
         <line num="43" count="3" type="stmt"/>
         <line num="44" count="3" type="stmt"/>
-        <line num="46" count="3" type="stmt"/>
         <line num="47" count="3" type="stmt"/>
         <line num="48" count="3" type="stmt"/>
         <line num="49" count="2" type="cond" truecount="1" falsecount="0"/>
@@ -222,9 +347,7 @@
         <line num="91" count="1" type="stmt"/>
         <line num="92" count="1" type="stmt"/>
         <line num="93" count="1" type="stmt"/>
-        <line num="94" count="1" type="stmt"/>
         <line num="96" count="1" type="stmt"/>
-        <line num="100" count="0" type="stmt"/>
         <line num="101" count="0" type="stmt"/>
         <line num="102" count="0" type="stmt"/>
         <line num="103" count="0" type="stmt"/>
@@ -268,7 +391,6 @@
         <line num="238" count="1" type="stmt"/>
         <line num="239" count="1" type="stmt"/>
         <line num="240" count="1" type="stmt"/>
-        <line num="242" count="0" type="stmt"/>
         <line num="243" count="0" type="stmt"/>
         <line num="249" count="2" type="stmt"/>
         <line num="250" count="2" type="stmt"/>
@@ -290,10 +412,8 @@
         <line num="298" count="1" type="stmt"/>
         <line num="299" count="0" type="stmt"/>
         <line num="300" count="0" type="stmt"/>
-        <line num="301" count="0" type="stmt"/>
         <line num="312" count="0" type="stmt"/>
         <line num="315" count="0" type="stmt"/>
-        <line num="316" count="0" type="stmt"/>
         <line num="319" count="0" type="cond" truecount="0" falsecount="1"/>
         <line num="320" count="0" type="stmt"/>
         <line num="324" count="0" type="cond" truecount="0" falsecount="3"/>
@@ -324,6 +444,151 @@
         <line num="427" count="1" type="stmt"/>
         <line num="435" count="0" type="stmt"/>
       </file>
+      <file name="paymentController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\paymentController.ts">
+        <metrics statements="98" coveredstatements="93" conditionals="47" coveredconditionals="38" methods="14" coveredmethods="14"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="21" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="73" count="12" type="stmt"/>
+        <line num="74" count="12" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="107" count="1" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="119" count="2" type="stmt"/>
+        <line num="120" count="2" type="stmt"/>
+        <line num="121" count="2" type="stmt"/>
+        <line num="123" count="2" type="stmt"/>
+        <line num="124" count="2" type="stmt"/>
+        <line num="125" count="2" type="stmt"/>
+        <line num="126" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="127" count="2" type="stmt"/>
+        <line num="131" count="2" type="stmt"/>
+        <line num="134" count="2" type="stmt"/>
+        <line num="135" count="2" type="stmt"/>
+        <line num="136" count="2" type="stmt"/>
+        <line num="138" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="139" count="1" type="stmt"/>
+        <line num="144" count="1" type="stmt"/>
+        <line num="145" count="1" type="stmt"/>
+        <line num="146" count="1" type="stmt"/>
+        <line num="147" count="1" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="157" count="1" type="stmt"/>
+        <line num="159" count="1" type="stmt"/>
+        <line num="179" count="1" type="stmt"/>
+        <line num="181" count="1" type="stmt"/>
+        <line num="188" count="0" type="stmt"/>
+        <line num="192" count="5" type="stmt"/>
+        <line num="193" count="5" type="stmt"/>
+        <line num="194" count="5" type="stmt"/>
+        <line num="196" count="5" type="stmt"/>
+        <line num="197" count="5" type="stmt"/>
+        <line num="198" count="5" type="stmt"/>
+        <line num="200" count="5" type="stmt"/>
+        <line num="204" count="5" type="cond" truecount="3" falsecount="1"/>
+        <line num="205" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="206" count="1" type="stmt"/>
+        <line num="211" count="4" type="cond" truecount="0" falsecount="1"/>
+        <line num="212" count="0" type="stmt"/>
+        <line num="218" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="219" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="220" count="1" type="stmt"/>
+        <line num="221" count="1" type="stmt"/>
+        <line num="227" count="1" type="stmt"/>
+        <line num="232" count="1" type="stmt"/>
+        <line num="235" count="1" type="stmt"/>
+        <line num="236" count="1" type="stmt"/>
+        <line num="237" count="2" type="stmt"/>
+        <line num="238" count="2" type="stmt"/>
+        <line num="239" count="2" type="stmt"/>
+        <line num="241" count="2" type="stmt"/>
+        <line num="248" count="2" type="stmt"/>
+        <line num="249" count="2" type="stmt"/>
+        <line num="252" count="1" type="stmt"/>
+        <line num="253" count="1" type="stmt"/>
+        <line num="263" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="264" count="1" type="stmt"/>
+        <line num="265" count="1" type="stmt"/>
+        <line num="266" count="1" type="stmt"/>
+        <line num="272" count="1" type="stmt"/>
+        <line num="277" count="0" type="stmt"/>
+        <line num="290" count="2" type="stmt"/>
+        <line num="291" count="2" type="stmt"/>
+        <line num="293" count="2" type="stmt"/>
+        <line num="296" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="297" count="1" type="stmt"/>
+        <line num="302" count="1" type="stmt"/>
+        <line num="306" count="0" type="stmt"/>
+        <line num="311" count="1" type="stmt"/>
+        <line num="314" count="3" type="stmt"/>
+        <line num="315" count="3" type="stmt"/>
+        <line num="316" count="3" type="stmt"/>
+        <line num="318" count="3" type="stmt"/>
+        <line num="325" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="326" count="1" type="stmt"/>
+        <line num="331" count="1" type="stmt"/>
+        <line num="341" count="1" type="stmt"/>
+      </file>
+      <file name="searchController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\searchController.ts">
+        <metrics statements="41" coveredstatements="41" conditionals="12" coveredconditionals="12" methods="6" coveredmethods="6"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+        <line num="8" count="3" type="stmt"/>
+        <line num="9" count="3" type="stmt"/>
+        <line num="11" count="3" type="cond" truecount="1" falsecount="0"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="45" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="46" count="2" type="stmt"/>
+        <line num="54" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="59" count="2" type="cond" truecount="3" falsecount="0"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="62" count="1" type="cond" truecount="1" falsecount="0"/>
+        <line num="66" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="67" count="1" type="stmt"/>
+        <line num="71" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="76" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="80" count="2" type="stmt"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="130" count="3" type="stmt"/>
+        <line num="131" count="3" type="stmt"/>
+        <line num="132" count="3" type="stmt"/>
+        <line num="134" count="3" type="cond" truecount="1" falsecount="0"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="140" count="2" type="stmt"/>
+        <line num="145" count="1" type="stmt"/>
+        <line num="155" count="1" type="stmt"/>
+      </file>
       <file name="ticketController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\ticketController.ts">
         <metrics statements="25" coveredstatements="25" conditionals="3" coveredconditionals="3" methods="8" coveredmethods="8"/>
         <line num="2" count="1" type="stmt"/>
@@ -353,7 +618,7 @@
         <line num="108" count="1" type="stmt"/>
       </file>
       <file name="userController.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\controllers\userController.ts">
-        <metrics statements="53" coveredstatements="43" conditionals="11" coveredconditionals="2" methods="8" coveredmethods="8"/>
+        <metrics statements="51" coveredstatements="42" conditionals="11" coveredconditionals="2" methods="8" coveredmethods="8"/>
         <line num="3" count="1" type="stmt"/>
         <line num="4" count="1" type="stmt"/>
         <line num="5" count="1" type="stmt"/>
@@ -392,7 +657,6 @@
         <line num="72" count="1" type="stmt"/>
         <line num="73" count="1" type="stmt"/>
         <line num="74" count="1" type="stmt"/>
-        <line num="75" count="1" type="stmt"/>
         <line num="77" count="1" type="stmt"/>
         <line num="79" count="1" type="cond" truecount="0" falsecount="1"/>
         <line num="80" count="0" type="stmt"/>
@@ -405,7 +669,6 @@
         <line num="97" count="1" type="stmt"/>
         <line num="98" count="1" type="stmt"/>
         <line num="99" count="1" type="stmt"/>
-        <line num="101" count="0" type="stmt"/>
         <line num="102" count="0" type="stmt"/>
       </file>
     </package>
@@ -420,46 +683,54 @@
       </file>
       <file name="Event.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\models\Event.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="22" count="2" type="stmt"/>
-        <line num="38" count="2" type="stmt"/>
-        <line num="39" count="2" type="stmt"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="22" count="5" type="stmt"/>
+        <line num="38" count="5" type="stmt"/>
+        <line num="39" count="5" type="stmt"/>
       </file>
       <file name="Organizer.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\models\Organizer.ts">
         <metrics statements="3" coveredstatements="3" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="15" count="1" type="stmt"/>
-        <line num="32" count="1" type="stmt"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="32" count="3" type="stmt"/>
       </file>
       <file name="Payment.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\models\Payment.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="2" count="2" type="stmt"/>
-        <line num="16" count="2" type="stmt"/>
-        <line num="26" count="2" type="stmt"/>
-        <line num="27" count="2" type="stmt"/>
+        <line num="2" count="3" type="stmt"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="27" count="3" type="stmt"/>
       </file>
       <file name="Ticket.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\models\Ticket.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="11" count="1" type="stmt"/>
-        <line num="22" count="1" type="stmt"/>
-        <line num="23" count="1" type="stmt"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
       </file>
       <file name="User.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\models\User.ts">
         <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
-        <line num="1" count="1" type="stmt"/>
-        <line num="17" count="1" type="stmt"/>
-        <line num="38" count="1" type="stmt"/>
-        <line num="39" count="1" type="stmt"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="39" count="3" type="stmt"/>
       </file>
     </package>
     <package name="utils">
-      <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <metrics statements="8" coveredstatements="8" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
       <file name="apiResource.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\utils\apiResource.ts">
         <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
-        <line num="1" count="3" type="stmt"/>
-        <line num="7" count="34" type="stmt"/>
-        <line num="15" count="3" type="stmt"/>
+        <line num="1" count="8" type="stmt"/>
+        <line num="7" count="48" type="stmt"/>
+        <line num="15" count="8" type="stmt"/>
+      </file>
+      <file name="midtranst.ts" path="D:\Kuliah\Semester 5\Studi Independen\Final Project ( GoEvent )\backend\src\utils\midtranst.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
       </file>
     </package>
   </project>
