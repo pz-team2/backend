@@ -1,3 +1,7 @@
+## GoEvent
+
+[![GoEvent Backend CI/CD](https://github.com/pz-team2/backend/actions/workflows/main.yml/badge.svg)](https://github.com/pz-team2/backend/actions/workflows/main.yml)
+
 ## CARA MENJALANKAN PROJECT NYA :
 
 ```
