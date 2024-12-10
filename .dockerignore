@@ -8,6 +8,4 @@ npm-debug.log
 coverage
 .vscode
 dist
-Dockerfile
-docker-compose.yml
 .github
