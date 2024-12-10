@@ -3,12 +3,10 @@ name: GoEvent Backend CI/CD
 on:
   push:
     branches:
-      - main
-      - master
+      - dev
   pull_request:
     branches:
-      - main
-      - master
+      - dev
 
 env:
   MONGODB_URI: mongodb+srv://goevent:goevent883@cluster0.wxrk2.mongodb.net/dbGoEvent?retryWrites=true&w=majority&appName=Cluster0
@@ -25,6 +23,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+
+      - name: Run Unit Tests
+        run: |
+          npm test
 
       - name: Install Docker Compose
         run: |

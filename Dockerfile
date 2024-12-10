@@ -2,7 +2,7 @@
 FROM node:18
 
 # Set working directory dalam container
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Copy file package.json dan package-lock.json untuk instalasi dependencies
 COPY package*.json ./
