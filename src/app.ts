@@ -36,6 +36,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use("/api/auth", authRouter);

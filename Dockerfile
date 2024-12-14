@@ -1,8 +1,8 @@
 # Gunakan image node sebagai base image
-FROM node:18
+FROM node:18-alpine
 
 # Set working directory dalam container
-WORKDIR /usr/src/app
+WORKDIR /src/app
 
 # Copy file package.json dan package-lock.json untuk instalasi dependencies
 COPY package*.json ./
@@ -20,4 +20,4 @@ RUN npm run build
 EXPOSE 3500
 
 # Perintah untuk menjalankan aplikasi
-CMD ["npm", "run", "dev"]
+CMD ["node", "dist/app.js"]
