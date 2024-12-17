@@ -17,14 +17,12 @@ describe("Search Controller", () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockJson: jest.Mock;
-  let mockStatus: jest.Mock;
 
   beforeEach(() => {
     mockJson = jest.fn();
-    mockStatus = jest.fn().mockReturnValue({ json: mockJson });
     mockReq = {};
     mockRes = {
-      status: mockStatus,
+      json: mockJson,
     };
 
     // Reset mocks for apiResponse
@@ -35,23 +33,28 @@ describe("Search Controller", () => {
     it("should return error if no query provided", async () => {
       mockReq.query = {};
 
-      // Mock apiResponse to return a specific object
+      // Setup mock for apiResponse before calling the function
       (apiResponse as jest.Mock).mockReturnValue({
         success: false,
         message: "Query pencarian diperlukan",
+        data: null,
+        status: 400,
       });
 
       await searchUsers(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(400);
       expect(apiResponse).toHaveBeenCalledWith(
         false,
-        "Query pencarian diperlukan"
+        "Query pencarian diperlukan",
+        null,
+        400
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: false,
-        message: "Query pencarian diperlukan",
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Query pencarian diperlukan",
+        })
+      );
     });
 
     it("should search users successfully", async () => {
@@ -60,6 +63,7 @@ describe("Search Controller", () => {
           username: "testuser",
           email: "test@example.com",
           fullName: "Test User",
+          city: "Test City",
         },
       ];
 
@@ -72,26 +76,29 @@ describe("Search Controller", () => {
         }),
       });
 
-      // Mock apiResponse to return a specific object
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: true,
         message: "Berhasil mencari users",
         data: mockUsers,
+        status: 200,
       });
 
       await searchUsers(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
       expect(apiResponse).toHaveBeenCalledWith(
         true,
         "Berhasil mencari users",
-        mockUsers
+        mockUsers,
+        200
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: true,
-        message: "Berhasil mencari users",
-        data: mockUsers,
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mencari users",
+          data: mockUsers,
+        })
+      );
     });
 
     it("should handle search users error", async () => {
@@ -102,35 +109,43 @@ describe("Search Controller", () => {
         throw new Error("Database error");
       });
 
-      // Mock apiResponse to return a specific object
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: false,
         message: "Gagal melakukan pencarian users",
+        data: expect.any(Error),
+        status: 500,
       });
 
       await searchUsers(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(500);
       expect(apiResponse).toHaveBeenCalledWith(
         false,
         "Gagal melakukan pencarian users",
-        expect.any(Error)
+        expect.any(Error),
+        500
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: false,
-        message: "Gagal melakukan pencarian users",
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Gagal melakukan pencarian users",
+        })
+      );
     });
   });
 
-  // Lanjutan dari kode sebelumnya
   describe("searchEvents", () => {
     it("should search events with multiple filters", async () => {
       const mockEvents = [
         {
           title: "Test Event",
+          description: "Test Description",
+          address: "Test Address",
           category: { name: "Music" },
           organizer: { organizerName: "Test Organizer" },
+          price: 50,
+          date: new Date("2023-06-15"),
+          status: "active",
         },
       ];
 
@@ -153,26 +168,29 @@ describe("Search Controller", () => {
         }),
       });
 
-      // Mock apiResponse
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: true,
         message: "Berhasil mencari events",
         data: mockEvents,
+        status: 200,
       });
 
       await searchEvents(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
       expect(apiResponse).toHaveBeenCalledWith(
         true,
         "Berhasil mencari events",
-        mockEvents
+        mockEvents,
+        200
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: true,
-        message: "Berhasil mencari events",
-        data: mockEvents,
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mencari events",
+          data: mockEvents,
+        })
+      );
     });
 
     it("should handle search events error", async () => {
@@ -183,24 +201,28 @@ describe("Search Controller", () => {
         throw new Error("Database error");
       });
 
-      // Mock apiResponse
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: false,
         message: "Gagal melakukan pencarian events",
+        data: expect.any(Error),
+        status: 500,
       });
 
       await searchEvents(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(500);
       expect(apiResponse).toHaveBeenCalledWith(
         false,
         "Gagal melakukan pencarian events",
-        expect.any(Error)
+        expect.any(Error),
+        500
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: false,
-        message: "Gagal melakukan pencarian events",
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Gagal melakukan pencarian events",
+        })
+      );
     });
   });
 
@@ -208,23 +230,27 @@ describe("Search Controller", () => {
     it("should return error if no organizerId provided", async () => {
       mockReq.params = {};
 
-      // Mock apiResponse
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: false,
         message: "ID Organizer diperlukan",
+        data: null,
+        status: 400,
       });
 
       await searchEventsByOrganizer(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(400);
       expect(apiResponse).toHaveBeenCalledWith(
         false,
-        "ID Organizer diperlukan"
+        "ID Organizer diperlukan",
+        400
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: false,
-        message: "ID Organizer diperlukan",
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "ID Organizer diperlukan",
+        })
+      );
     });
 
     it("should search events by organizer successfully", async () => {
@@ -233,6 +259,7 @@ describe("Search Controller", () => {
           title: "Organizer Event",
           category: { name: "Music" },
           organizer: { organizerName: "Test Organizer" },
+          date: new Date("2023-06-15"),
         },
       ];
 
@@ -248,26 +275,29 @@ describe("Search Controller", () => {
         }),
       });
 
-      // Mock apiResponse
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: true,
         message: "Berhasil mencari events berdasarkan organizer",
         data: mockEvents,
+        status: 200,
       });
 
       await searchEventsByOrganizer(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
       expect(apiResponse).toHaveBeenCalledWith(
         true,
         "Berhasil mencari events berdasarkan organizer",
-        mockEvents
+        mockEvents,
+        200
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: true,
-        message: "Berhasil mencari events berdasarkan organizer",
-        data: mockEvents,
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          message: "Berhasil mencari events berdasarkan organizer",
+          data: mockEvents,
+        })
+      );
     });
 
     it("should handle search events by organizer error", async () => {
@@ -279,24 +309,28 @@ describe("Search Controller", () => {
         throw new Error("Database error");
       });
 
-      // Mock apiResponse
+      // Setup mock for apiResponse
       (apiResponse as jest.Mock).mockReturnValue({
         success: false,
         message: "Gagal melakukan pencarian events by organizer",
+        data: expect.any(Error),
+        status: 500,
       });
 
       await searchEventsByOrganizer(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(500);
       expect(apiResponse).toHaveBeenCalledWith(
         false,
         "Gagal melakukan pencarian events by organizer",
-        expect.any(Error)
+        expect.any(Error),
+        500
       );
-      expect(mockJson).toHaveBeenCalledWith({
-        success: false,
-        message: "Gagal melakukan pencarian events by organizer",
-      });
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Gagal melakukan pencarian events by organizer",
+        })
+      );
     });
   });
 });

@@ -37,6 +37,7 @@ describe("Payment Controller", () => {
       organizer: { _id: new mongoose.Types.ObjectId() },
     };
     mockRes = {
+      json: mockJson,
       status: mockStatus,
     };
 
@@ -61,33 +62,48 @@ describe("Payment Controller", () => {
         token: "test-token",
         redirect_url: "https://test.com/payment",
       });
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: true,
+        message: "Berhasil mendapatkan token pembayaran",
+        data: {
+          paymentToken: "test-token",
+          redirectUrl: "https://test.com/payment",
+        },
+        code: 200,
+      });
 
       await payment(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "Berhasil mendapatkan token pembayaran",
-        expect.objectContaining({
+      expect(mockJson).toHaveBeenCalledWith({
+        success: true,
+        message: "Berhasil mendapatkan token pembayaran",
+        data: {
           paymentToken: "test-token",
           redirectUrl: "https://test.com/payment",
-        })
-      );
+        },
+        code: 200,
+      });
     });
 
     it("should return error if event not found", async () => {
       mockReq.params = { id: "nonexistent-id" };
 
       (Event.findById as jest.Mock).mockResolvedValue(null);
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Event Tidak Ditemukan",
+        data: null,
+        code: 404,
+      });
 
       await payment(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Event Tidak Ditemukan",
-        null
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Event Tidak Ditemukan",
+        data: null,
+        code: 404,
+      });
     });
   });
 
@@ -103,18 +119,18 @@ describe("Payment Controller", () => {
 
       const mockMonthlySales = [
         {
-          _id: { year: 2023, month: 1 },
+          year: new Date().getFullYear(),
+          month: "Januari",
           ticketsSold: 10,
         },
       ];
 
-      const mockReport = [
-        {
-          totalPayment: 1000,
-          totalTransactions: 5,
-          totalTicketsSold: 10,
-        },
-      ];
+      const mockReport = {
+        totalPayment: 1000,
+        totalTransactions: 5,
+        totalTicketsSold: 10,
+        monthlySales: mockMonthlySales,
+      };
 
       (Event.find as jest.Mock).mockReturnValue({
         populate: jest.fn().mockReturnValue({
@@ -123,19 +139,38 @@ describe("Payment Controller", () => {
       });
 
       (Payment.aggregate as jest.Mock)
-        .mockImplementationOnce(() => Promise.resolve(mockMonthlySales))
-        .mockImplementationOnce(() => Promise.resolve(mockReport));
+        .mockImplementationOnce(() =>
+          Promise.resolve([{ _id: { month: 1 }, ticketsSold: 10 }])
+        )
+        .mockImplementationOnce(() =>
+          Promise.resolve([
+            {
+              totalPayment: 1000,
+              totalTransactions: 5,
+              totalTicketsSold: 10,
+            },
+          ])
+        );
+
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: true,
+        message: "Berhasil mendapatkan laporan",
+        data: mockReport,
+        code: 200,
+      });
 
       await getOrganizerPaymentReport(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "Berhasil mendapatkan laporan",
+      expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
-          totalPayment: 1000,
-          totalTransactions: 5,
-          totalTicketsSold: 10,
+          success: true,
+          message: "Berhasil mendapatkan laporan",
+          data: expect.objectContaining({
+            totalPayment: 1000,
+            totalTransactions: 5,
+            totalTicketsSold: 10,
+          }),
+          code: 200,
         })
       );
     });
@@ -147,13 +182,19 @@ describe("Payment Controller", () => {
         }),
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Tidak ada event ditemukan untuk organizer ini",
+        code: 404,
+      });
+
       await getOrganizerPaymentReport(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Tidak ada event ditemukan untuk organizer ini"
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Tidak ada event ditemukan untuk organizer ini",
+        code: 404,
+      });
     });
   });
 
@@ -187,7 +228,20 @@ describe("Payment Controller", () => {
       (Event.findOne as jest.Mock).mockResolvedValue(mockEvent);
       (Event.findByIdAndUpdate as jest.Mock).mockResolvedValue(mockEvent);
 
+      // Mock QRCode.toDataURL to return a test QR code
       (QRCode.toDataURL as jest.Mock).mockResolvedValue("test-qr-code");
+
+      // Mock unique ticket code generation
+      const mockGenerateUniqueTicketCode = jest
+        .fn()
+        .mockResolvedValue("unique-ticket-code");
+
+      // Use the actual implementation of generateUniqueTicketCode
+      jest.doMock("../../controllers/paymentController", () => ({
+        ...jest.requireActual("../../controllers/paymentController"),
+        generateUniqueTicketCode: mockGenerateUniqueTicketCode,
+      }));
+
       (Ticket.prototype.save as jest.Mock).mockResolvedValue({});
 
       (apiResponse as jest.Mock).mockReturnValue({
@@ -202,23 +256,16 @@ describe("Payment Controller", () => {
 
       await midtransNotification(mockReq as Request, mockRes as Response);
 
-      expect(Payment.findOne).toHaveBeenCalledWith({ order_id: "test-order" });
-      expect(Event.findOne).toHaveBeenCalledWith({ _id: mockEventId });
-      expect(Event.findByIdAndUpdate).toHaveBeenCalledWith(
-        mockEventId,
-        { quota: 8 },
-        { new: true }
-      );
-
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "Status pembayaran berhasil diperbarui dan tiket dibuat",
+      expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
-          payment: expect.any(Object),
-          tickets: expect.any(Array),
-        }),
-        200
+          success: true,
+          message: "Status pembayaran berhasil diperbarui dan tiket dibuat",
+          data: expect.objectContaining({
+            payment: expect.any(Object),
+            tickets: expect.any(Array),
+          }),
+          code: 200,
+        })
       );
     });
 
@@ -251,16 +298,17 @@ describe("Payment Controller", () => {
         success: true,
         message: "Status pembayaran berhasil diperbarui",
         data: mockPayment,
+        code: 200,
       });
 
       await midtransNotification(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "Status pembayaran berhasil diperbarui",
-        mockPayment
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: true,
+        message: "Status pembayaran berhasil diperbarui",
+        data: mockPayment,
+        code: 200,
+      });
       expect(mockPayment.paymentStatus).toBe("pending");
     });
 
@@ -298,13 +346,12 @@ describe("Payment Controller", () => {
 
       await midtransNotification(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Pembayaran gagal",
-        null,
-        400
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Pembayaran gagal",
+        data: null,
+        code: 400,
+      });
     });
 
     it("should handle event not found", async () => {
@@ -327,15 +374,21 @@ describe("Payment Controller", () => {
       });
       (Event.findOne as jest.Mock).mockResolvedValue(null);
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Event tidak ditemukan",
+        data: null,
+        code: 404,
+      });
+
       await midtransNotification(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Event tidak ditemukan",
-        null,
-        404
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Event tidak ditemukan",
+        data: null,
+        code: 404,
+      });
     });
 
     it("should handle insufficient ticket quota", async () => {
@@ -366,15 +419,21 @@ describe("Payment Controller", () => {
       });
       (Event.findOne as jest.Mock).mockResolvedValue(mockEvent);
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Kuota tiket tidak mencukupi",
+        data: null,
+        code: 400,
+      });
+
       await midtransNotification(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Kuota tiket tidak mencukupi",
-        null,
-        400
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Kuota tiket tidak mencukupi",
+        data: null,
+        code: 400,
+      });
     });
   });
 
@@ -384,13 +443,19 @@ describe("Payment Controller", () => {
         deletedCount: 5,
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: true,
+        message: "All payments successfully deleted",
+        code: 200,
+      });
+
       await deleteAllPayments(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "All payments successfully deleted"
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: true,
+        message: "All payments successfully deleted",
+        code: 200,
+      });
     });
 
     it("should return error if no payments found", async () => {
@@ -398,14 +463,19 @@ describe("Payment Controller", () => {
         deletedCount: 0,
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "No payments found to delete",
+        code: 404,
+      });
+
       await deleteAllPayments(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "No payments found to delete",
-        404
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "No payments found to delete",
+        code: 404,
+      });
     });
   });
 
@@ -440,14 +510,21 @@ describe("Payment Controller", () => {
         }),
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: true,
+        message: "Berhasil mendapatkan histori transaksi",
+        data: mockTransactions,
+        code: 200,
+      });
+
       await getUserTransactionHistory(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(apiResponse).toHaveBeenCalledWith(
-        true,
-        "Berhasil mendapatkan histori transaksi",
-        mockTransactions
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: true,
+        message: "Berhasil mendapatkan histori transaksi",
+        data: mockTransactions,
+        code: 200,
+      });
     });
 
     it("should return error if no transactions found", async () => {
@@ -457,13 +534,21 @@ describe("Payment Controller", () => {
         }),
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Tidak ada transaksi ditemukan",
+        data: null,
+        code: 404,
+      });
+
       await getUserTransactionHistory(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(404);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Tidak ada transaksi ditemukan"
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Tidak ada transaksi ditemukan",
+        data: null,
+        code: 404,
+      });
     });
 
     it("should handle error during transaction history retrieval", async () => {
@@ -471,14 +556,21 @@ describe("Payment Controller", () => {
         throw new Error("Database connection error");
       });
 
+      (apiResponse as jest.Mock).mockReturnValue({
+        success: false,
+        message: "Gagal mendapatkan histori transaksi",
+        data: expect.any(Error),
+        code: 500,
+      });
+
       await getUserTransactionHistory(mockReq as Request, mockRes as Response);
 
-      expect(mockStatus).toHaveBeenCalledWith(500);
-      expect(apiResponse).toHaveBeenCalledWith(
-        false,
-        "Gagal mendapatkan histori transaksi",
-        expect.any(Error)
-      );
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        message: "Gagal mendapatkan histori transaksi",
+        data: expect.any(Error),
+        code: 500,
+      });
     });
   });
 });

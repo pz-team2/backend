@@ -11,14 +11,19 @@ import apiResponse from "../utils/apiResource";
 dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET || "defaultSecretKey";
 
-export const Register: RequestHandler = async (req: Request, res: Response): Promise<void> => {
+export const Register: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { username, email, password } = req.body;
 
   try {
     const checkEmail = await User.findOne({ email });
 
     if (checkEmail) {
-      res.json(apiResponse(false, "Email Sudah Terdaftar Silahkan Login !", null, 400));
+      res.json(
+        apiResponse(false, "Email Sudah Terdaftar Silahkan Login !", null, 400)
+      );
       return;
     }
 
@@ -28,10 +33,10 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
     const verificationLink = `${process.env.FRONTEND_URL}/verify/${emailToken}`;
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail', 
+      service: "gmail",
       auth: {
-        user: 'goevent883@gmail.com', 
-        pass: 'iypc omhh nyvz onuw',
+        user: "goevent883@gmail.com",
+        pass: "iypc omhh nyvz onuw",
       },
     });
 
@@ -79,17 +84,22 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
 
         await user.save();
         res.json(
-          apiResponse(true, "Registrasi Berhasil Silahkan Verifikasi Email !!", null, 201)
+          apiResponse(
+            true,
+            "Registrasi Berhasil Silahkan Verifikasi Email !!",
+            null,
+            201
+          )
         );
       }
     });
   } catch (error) {
     console.error("Error:", error);
-    res.json(apiResponse(false, "Terjadi Kesalahan Saat Registrasi", error, 500));
+    res.json(
+      apiResponse(false, "Terjadi Kesalahan Saat Registrasi", error, 500)
+    );
   }
 };
-
-
 
 // Login
 export const Login: RequestHandler = async (req: Request, res: Response) => {
@@ -111,13 +121,18 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
     const payload = { userId: user.id };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
-    return res
-      .json(
-        apiResponse(true, "Berhasil Login ", { token, username: user.username }, 200)
-      );
+    return res.json(
+      apiResponse(
+        true,
+        "Berhasil Login ",
+        { token, username: user.username },
+        200
+      )
+    );
   } catch (error) {
-    return res
-      .json(apiResponse(false, "Terjadi Kesalahan Saat Login", null, 500));
+    return res.json(
+      apiResponse(false, "Terjadi Kesalahan Saat Login", null, 500)
+    );
   }
 };
 
@@ -139,13 +154,18 @@ export const verifyEmail: RequestHandler = async (
     users.isVerified = true;
     await users.save();
 
-    res.json( apiResponse(true, "Success Verifikasi Email Silahkan Login !!!  ", {users,}, 202)
+    res.json(
+      apiResponse(
+        true,
+        "Success Verifikasi Email Silahkan Login !!!  ",
+        { users },
+        202
+      )
     );
   } catch (error) {
     // console.log("Error during email verification:", error);
-    res
-      .json(
-        apiResponse(false, "Terjadi Kesalahan Saat Verifikasi Email ", error, 500)
-      );
+    res.json(
+      apiResponse(false, "Terjadi Kesalahan Saat Verifikasi Email ", error, 500)
+    );
   }
 };

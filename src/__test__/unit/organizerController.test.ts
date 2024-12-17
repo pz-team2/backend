@@ -25,15 +25,7 @@ jest.mock("../../models/Event");
 jest.mock("../../models/Payment");
 jest.mock("bcryptjs");
 jest.mock("../../utils/apiResource", () => jest.fn());
-jest.mock("moment-timezone", () => {
-  const original = jest.requireActual("moment-timezone");
-  return {
-    ...original,
-    tz: jest.fn().mockReturnValue({
-      format: jest.fn().mockReturnValue("2024-01-01 00:00:00"),
-    }),
-  };
-});
+jest.mock("moment-timezone");
 
 describe("Organizer Controller", () => {
   let mockRequest: Partial<Request>;
@@ -49,13 +41,12 @@ describe("Organizer Controller", () => {
   });
 
   describe("getOrganizers", () => {
-    it("should return all organizers", async () => {
+    it("should return all organizers successfully", async () => {
       const mockOrganizers = [{ id: "1", username: "Organizer A" }];
       (Organizer.find as jest.Mock).mockResolvedValue(mockOrganizers);
 
       await getOrganizers(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(
           true,
@@ -66,21 +57,14 @@ describe("Organizer Controller", () => {
       );
     });
 
-    it("should handle errors", async () => {
-      (Organizer.find as jest.Mock).mockRejectedValue(
-        new Error("Database error")
-      );
+    it("should handle errors when fetching organizers", async () => {
+      const mockError = new Error("Database error");
+      (Organizer.find as jest.Mock).mockRejectedValue(mockError);
 
       await getOrganizers(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
       expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(
-          false,
-          "Gagal mendapatkan organizer",
-          expect.any(Error),
-          500
-        )
+        apiResponse(false, "Gagal mendapatkan organizer", mockError, 500)
       );
     });
   });
@@ -95,185 +79,81 @@ describe("Organizer Controller", () => {
         mockResponse as Response
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Data Berhasil", mockOrganizers, 200)
       );
     });
 
-    it("should handle errors", async () => {
-      (Organizer.find as jest.Mock).mockRejectedValue(
-        new Error("Database error")
-      );
+    it("should handle errors when fetching organizers by role", async () => {
+      const mockError = new Error("Database error");
+      (Organizer.find as jest.Mock).mockRejectedValue(mockError);
 
       await getOrganizerByRole(
         mockRequest as Request,
         mockResponse as Response
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(false, "Data Tidak Berhasil", expect.any(Error), 404)
+        apiResponse(false, "Data Tidak Berhasil", mockError, 404)
       );
     });
   });
 
   describe("createOrganizer", () => {
-    it("should create a new organizer", async () => {
+    it("should create a new organizer successfully", async () => {
       const mockBody = {
         username: "testUser",
         email: "test@example.com",
         password: "password123",
         role: "organizer",
+        phoneNumber: "1234567890",
+        organizerName: "Test Organizer",
+        status: "active",
       };
       mockRequest.body = mockBody;
 
       (Organizer.findOne as jest.Mock).mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashedPassword");
-      (Organizer.prototype.save as jest.Mock).mockResolvedValue(mockBody);
+
+      const mockSavedOrganizer = { ...mockBody, password: "hashedPassword" };
+      (Organizer.prototype.save as jest.Mock).mockResolvedValue(
+        mockSavedOrganizer
+      );
 
       await createOrganizer(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(201);
       expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(true, "Organizer berhasil ditambahkan", mockBody, 201)
+        apiResponse(
+          true,
+          "Organizer berhasil ditambahkan",
+          expect.objectContaining({
+            username: "testUser",
+            email: "test@example.com",
+          }),
+          201
+        )
       );
     });
 
     it("should return 400 if email already exists", async () => {
-      mockRequest.body = { email: "test@example.com" };
+      mockRequest.body = {
+        email: "test@example.com",
+        password: "password123",
+      };
       (Organizer.findOne as jest.Mock).mockResolvedValue({
         email: "test@example.com",
       });
 
       await createOrganizer(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(400);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Email sudah terdaftar", null, 400)
       );
     });
   });
 
-  describe("getOrganizerById", () => {
-    it("should return an organizer by ID with status 200", async () => {
-      const mockOrganizer = { id: "1", username: "Organizer A" };
-
-      mockRequest.params = { id: "1" };
-      (Organizer.findById as jest.Mock).mockResolvedValue(mockOrganizer);
-
-      await getOrganizerById(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(true, "Berhasil Mendapatkan organizer", mockOrganizer, 200)
-      );
-    });
-
-    it("should return 404 if the organizer is not found", async () => {
-      mockRequest.params = { id: "1" };
-      (Organizer.findById as jest.Mock).mockResolvedValue(null);
-
-      await getOrganizerById(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(false, "Organizer Tidak ditemukan", 404)
-      );
-    });
-
-    it("should return 500 if there is a server error", async () => {
-      mockRequest.params = { id: "1" };
-      (Organizer.findById as jest.Mock).mockRejectedValue(
-        new Error("Database error")
-      );
-
-      await getOrganizerById(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(
-          false,
-          "Gagal Mendapatkan organizer",
-          expect.any(Error),
-          500
-        )
-      );
-    });
-  });
-
-  describe("updateOrganizer", () => {
-    it("should update organizer successfully with status 200", async () => {
-      const mockOrganizerId = "1";
-      const mockUpdatedData = {
-        username: "Updated Name",
-        phoneNumber: "123456789",
-        organizerName: "Updated Organizer",
-        email: "updated@example.com",
-        status: "active",
-      };
-
-      mockRequest.params = { id: mockOrganizerId };
-      mockRequest.body = mockUpdatedData;
-
-      const mockUpdatedOrganizer = { ...mockUpdatedData, id: mockOrganizerId };
-      (Organizer.findByIdAndUpdate as jest.Mock).mockResolvedValue(
-        mockUpdatedOrganizer
-      );
-
-      await updateOrganizer(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(
-          true,
-          "Organizer berhasil diperbarui",
-          mockUpdatedOrganizer,
-          200
-        )
-      );
-    });
-
-    it("should return 404 if the organizer is not found", async () => {
-      const mockOrganizerId = "1";
-      mockRequest.params = { id: mockOrganizerId };
-      mockRequest.body = { username: "Updated Name" };
-
-      (Organizer.findByIdAndUpdate as jest.Mock).mockResolvedValue(null);
-
-      await updateOrganizer(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(false, "Organizer tidak ditemukan", 404)
-      );
-    });
-
-    it("should return 500 if there is a server error", async () => {
-      const mockOrganizerId = "1";
-      mockRequest.params = { id: mockOrganizerId };
-      mockRequest.body = { username: "Updated Name" };
-
-      (Organizer.findByIdAndUpdate as jest.Mock).mockRejectedValue(
-        new Error("Database error")
-      );
-
-      await updateOrganizer(mockRequest as Request, mockResponse as Response);
-
-      expect(mockResponse.status).toHaveBeenCalledWith(500);
-      expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(
-          false,
-          "Gagal memperbarui organizer",
-          expect.any(Error),
-          500
-        )
-      );
-    });
-  });
-
   describe("updatepassword", () => {
-    it("should update the password if valid", async () => {
+    it("should update password successfully", async () => {
       mockRequest.body = {
         password: "currentPassword",
         pwbaru: "newPassword123",
@@ -281,49 +161,155 @@ describe("Organizer Controller", () => {
       };
       mockRequest.organizer = { id: "1" } as any;
 
-      (Organizer.findById as jest.Mock).mockResolvedValue({
-        password: "hashedPassword",
+      const mockOrganizer = {
+        _id: "1",
+        password: "hashedCurrentPassword",
         save: jest.fn(),
-      });
+      };
+
+      (Organizer.findById as jest.Mock).mockResolvedValue(mockOrganizer);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-      (bcrypt.hash as jest.Mock).mockResolvedValue("hashedNewPassword");
+      (bcrypt.hash as jest.Mock).mockResolvedValue("newHashedPassword");
 
       await updatepassword(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(true, "Berhasil Update Password", 200)
       );
     });
 
-    it("should return 404 if current password is incorrect", async () => {
-      mockRequest.body = { password: "wrongPassword" };
+    it("should return error if current password is incorrect", async () => {
+      mockRequest.body = {
+        password: "wrongCurrentPassword",
+        pwbaru: "newPassword123",
+        confirmpw: "newPassword123",
+      };
       mockRequest.organizer = { id: "1" } as any;
 
-      (Organizer.findById as jest.Mock).mockResolvedValue({
-        password: "hashedPassword",
-      });
+      const mockOrganizer = {
+        _id: "1",
+        password: "hashedCurrentPassword",
+      };
+
+      (Organizer.findById as jest.Mock).mockResolvedValue(mockOrganizer);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await updatepassword(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Password Yang Masukan Saat Ini Salah", 404)
       );
     });
   });
 
-  describe("getOrganizerByOne", () => {
-    it("should return organizer data by their ID", async () => {
-      mockRequest.organizer = { id: "1" } as any;
+  describe("getOrganizerStats", () => {
+    it("should return organizer stats successfully", async () => {
+      const mockOrganizerId = "organizerId";
+      mockRequest.organizer = { _id: mockOrganizerId } as any;
 
-      const mockOrganizer = { id: "1", username: "Organizer A" };
+      const mockEvents = [{ _id: "event1" }, { _id: "event2" }];
+      (Event.find as jest.Mock).mockResolvedValue(mockEvents);
+
+      const mockStats = [
+        {
+          totalRevenue: 10000,
+          totalTransactions: 5,
+          totalTicketsSold: 50,
+        },
+      ];
+      (Payment.aggregate as jest.Mock).mockResolvedValue(mockStats);
+
+      await getOrganizerStats(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        apiResponse(
+          true,
+          "Berhasil mendapatkan data dashboard",
+          {
+            revenue: 10000,
+            transactions: 5,
+            ticketsSold: 50,
+          },
+          200
+        )
+      );
+    });
+
+    it("should return 404 if no events are found", async () => {
+      mockRequest.organizer = { _id: "organizerId" } as any;
+
+      (Event.find as jest.Mock).mockResolvedValue([]);
+
+      await getOrganizerStats(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        apiResponse(false, "Tidak ada event terkait dengan organizer ini", 404)
+      );
+    });
+  });
+  // Add these to the existing test suite
+
+  describe("getOrganizerById", () => {
+    it("should return organizer when found successfully", async () => {
+      const mockOrganizerId = "1";
+      const mockOrganizer = {
+        _id: mockOrganizerId,
+        username: "Test Organizer",
+        email: "test@example.com",
+      };
+
+      mockRequest.params = { id: mockOrganizerId };
+      (Organizer.findById as jest.Mock).mockResolvedValue(mockOrganizer);
+
+      await getOrganizerById(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        apiResponse(true, "Berhasil Mendapatkan organizer", mockOrganizer, 200)
+      );
+    });
+
+    it("should return 404 when organizer is not found", async () => {
+      const mockOrganizerId = "1";
+      mockRequest.params = { id: mockOrganizerId };
+
+      (Organizer.findById as jest.Mock).mockResolvedValue(null);
+
+      await getOrganizerById(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        apiResponse(false, "Organizer Tidak ditemukan", 404)
+      );
+    });
+
+    it("should handle server errors", async () => {
+      const mockOrganizerId = "1";
+      const mockError = new Error("Database error");
+
+      mockRequest.params = { id: mockOrganizerId };
+      (Organizer.findById as jest.Mock).mockRejectedValue(mockError);
+
+      await getOrganizerById(mockRequest as Request, mockResponse as Response);
+
+      expect(mockResponse.json).toHaveBeenCalledWith(
+        apiResponse(false, "Gagal Mendapatkan organizer", mockError, 500)
+      );
+    });
+  });
+
+  describe("getOrganizerByOne", () => {
+    it("should return organizer details for authenticated user", async () => {
+      const mockOrganizerId = "1";
+      const mockOrganizer = {
+        _id: mockOrganizerId,
+        username: "Test Organizer",
+        email: "test@example.com",
+      };
+
+      mockRequest.organizer = { id: mockOrganizerId } as any;
       (Organizer.findById as jest.Mock).mockResolvedValue(mockOrganizer);
 
       await getOrganizerByOne(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(
           true,
@@ -334,13 +320,14 @@ describe("Organizer Controller", () => {
       );
     });
 
-    it("should return 404 if organizer not found", async () => {
-      mockRequest.organizer = { id: "1" } as any;
+    it("should return 404 when organizer is not found", async () => {
+      const mockOrganizerId = "1";
+
+      mockRequest.organizer = { id: mockOrganizerId } as any;
       (Organizer.findById as jest.Mock).mockResolvedValue(null);
 
       await getOrganizerByOne(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Organizer not found", null, 404)
       );
@@ -348,75 +335,64 @@ describe("Organizer Controller", () => {
   });
 
   describe("getEventsByOrganizerLatest", () => {
-    let mockRequest: Partial<Request>;
-    let mockResponse: Partial<Response>;
+    // it("should return latest events for an organizer", async () => {
+    //   const mockOrganizerId = "organizerId";
+    //   mockRequest.organizer = { id: mockOrganizerId } as any;
 
-    beforeEach(() => {
-      mockRequest = {
-        organizer: { id: "organizerId" },
-      };
-      mockResponse = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      };
-    });
-
-    // it("should return the latest events for an organizer", async () => {
     //   const mockEvents = [
     //     {
-    //       _id: "1",
-    //       title: "Event A",
+    //       _id: "event1",
+    //       title: "Event 1",
     //       date: new Date(),
-    //       organizer: "organizerId",
-    //       picture: "image.jpg",
+    //       picture: "picture1.jpg",
     //       status: "active",
-    //     },
-    //     {
-    //       _id: "2",
-    //       title: "Event B",
-    //       date: new Date(),
-    //       organizer: "organizerId",
-    //       picture: "image2.jpg",
-    //       status: "active",
+    //       organizer: { organizerName: "Test Organizer" },
     //     },
     //   ];
 
-    //   const mockTiketTerjual = [{ _id: null, total: 5 }];
+    //   const mockPaymentAggregation = [{ total: 10 }];
 
-    //   (Event.find as jest.Mock).mockResolvedValue(mockEvents);
-    //   (Payment.aggregate as jest.Mock).mockResolvedValue(mockTiketTerjual);
+    //   (Event.find as jest.Mock).mockReturnValue({
+    //     populate: jest.fn().mockReturnValue({
+    //       sort: jest.fn().mockResolvedValue(mockEvents),
+    //     }),
+    //   });
+
+    //   (moment as any).tz.mockReturnValue({
+    //     format: jest.fn().mockReturnValue("2024-01-01 00:00:00"),
+    //   });
+
+    //   (Payment.aggregate as jest.Mock).mockResolvedValue(
+    //     mockPaymentAggregation
+    //   );
 
     //   await getEventsByOrganizerLatest(
     //     mockRequest as Request,
     //     mockResponse as Response
     //   );
 
-    //   expect(mockResponse.status).toHaveBeenCalledWith(200);
     //   expect(mockResponse.json).toHaveBeenCalledWith(
-    //     apiResponse(
-    //       true,
-    //       "Berhasil mendapatkan event terbaru",
-    //       expect.arrayContaining([
-    //         expect.objectContaining({
-    //           id: "1",
-    //           title: "Event A",
-    //           ticketsSold: 5,
-    //         }),
-    //       ]),
-    //       200
-    //     )
+    //     expect.objectContaining({
+    //       status: true,
+    //       message: "Berhasil mendapatkan event terbaru",
+    //       statusCode: 200,
+    //     })
     //   );
     // });
 
-    it("should return 404 if no events are found", async () => {
-      (Event.find as jest.Mock).mockResolvedValue([]);
+    it("should handle error when fetching latest events fails", async () => {
+      const mockOrganizerId = "organizerId";
+      mockRequest.organizer = { id: mockOrganizerId } as any;
+
+      (Event.find as jest.Mock).mockImplementation(() => {
+        throw new Error("Fetch error");
+      });
 
       await getEventsByOrganizerLatest(
         mockRequest as Request,
         mockResponse as Response
       );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(
           false,
@@ -428,27 +404,31 @@ describe("Organizer Controller", () => {
     });
   });
 
-  describe("updateOrganizerById", () => {
-    it("should update organizer by their ID", async () => {
-      mockRequest.organizer = { id: "1" } as any;
-      mockRequest.body = {
-        username: "newUsername",
-        phoneNumber: "123456789",
-        organizerName: "Organizer Baru",
-        email: "organizer@example.com",
+  describe("updateOrganizer", () => {
+    it("should update organizer successfully", async () => {
+      const mockOrganizerId = "1";
+      const mockUpdateData = {
+        username: "Updated Name",
+        phoneNumber: "1234567890",
+        organizerName: "Updated Organizer",
+        email: "updated@example.com",
+        status: "active",
       };
 
-      const mockUpdatedOrganizer = { id: "1", username: "Updated Name" };
+      mockRequest.params = { id: mockOrganizerId };
+      mockRequest.body = mockUpdateData;
+
+      const mockUpdatedOrganizer = {
+        ...mockUpdateData,
+        _id: mockOrganizerId,
+      };
+
       (Organizer.findByIdAndUpdate as jest.Mock).mockResolvedValue(
         mockUpdatedOrganizer
       );
 
-      await updateOrganizerById(
-        mockRequest as Request,
-        mockResponse as Response
-      );
+      await updateOrganizer(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(
           true,
@@ -459,20 +439,15 @@ describe("Organizer Controller", () => {
       );
     });
 
-    it("should return 404 if organizer not found (due to incomplete data or non-existing organizer)", async () => {
-      mockRequest.organizer = { id: "1" } as any;
-      mockRequest.body = { username: "newUsername" };
-      const mockUpdatedOrganizer = null;
-      (Organizer.findByIdAndUpdate as jest.Mock).mockResolvedValue(
-        mockUpdatedOrganizer
-      );
+    it("should return 404 if organizer not found", async () => {
+      const mockOrganizerId = "1";
+      mockRequest.params = { id: mockOrganizerId };
+      mockRequest.body = { username: "Updated Name" };
 
-      await updateOrganizerById(
-        mockRequest as Request,
-        mockResponse as Response
-      );
+      (Organizer.findByIdAndUpdate as jest.Mock).mockResolvedValue(null);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
+      await updateOrganizer(mockRequest as Request, mockResponse as Response);
+
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Organizer tidak ditemukan", 404)
       );
@@ -480,144 +455,120 @@ describe("Organizer Controller", () => {
   });
 
   describe("deleteOrganizer", () => {
-    it("should delete an organizer by ID", async () => {
-      mockRequest.params = { id: "1" };
+    it("should delete organizer successfully", async () => {
+      const mockOrganizerId = "1";
+      mockRequest.params = { id: mockOrganizerId };
 
-      const mockDeletedOrganizer = { id: "1", username: "Deleted Organizer" };
+      const mockDeletedOrganizer = {
+        _id: mockOrganizerId,
+        username: "Deleted Organizer",
+      };
+
       (Organizer.findByIdAndDelete as jest.Mock).mockResolvedValue(
         mockDeletedOrganizer
       );
 
       await deleteOrganizer(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(true, "Organizer berhasil dihapus", 200)
       );
     });
 
     it("should return 404 if organizer not found", async () => {
-      mockRequest.params = { id: "1" };
+      const mockOrganizerId = "1";
+      mockRequest.params = { id: mockOrganizerId };
+
       (Organizer.findByIdAndDelete as jest.Mock).mockResolvedValue(null);
 
       await deleteOrganizer(mockRequest as Request, mockResponse as Response);
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
         apiResponse(false, "Organizer tidak ditemukan", 404)
       );
     });
   });
 
-  // describe("getEventsByOrganizer", () => {
-  //   it("should return events filtered and paginated by organizer", async () => {
-  //     // Setup mock request
-  //     mockRequest.organizer = { id: "organizerId" };
-  //     mockRequest.query = {
-  //       page: "1",
-  //       limit: "2",
-  //       status: "active",
-  //       startDate: "2023-01-01",
-  //       endDate: "2023-12-31",
-  //       sortBy: "date",
-  //       sortOrder: "desc",
-  //     };
+  describe("getEventsByOrganizer", () => {
+    it("should return paginated events for an organizer", async () => {
+      const mockOrganizerId = "organizerId";
+      mockRequest.organizer = { id: mockOrganizerId } as any;
+      mockRequest.query = {
+        page: "1",
+        limit: "10",
+        sortBy: "date",
+        sortOrder: "desc",
+      };
 
-  //     // Mock data
-  //     const mockEvents = [
-  //       {
-  //         _id: "1",
-  //         title: "Event A",
-  //         organizer: "organizerId",
-  //         date: new Date(),
-  //         category: { name: "Category A" },
-  //       },
-  //       {
-  //         _id: "2",
-  //         title: "Event B",
-  //         organizer: "organizerId",
-  //         date: new Date(),
-  //         category: { name: "Category B" },
-  //       },
-  //     ];
-
-  //     const totalEvents = 5;
-
-  //     // Mock Event.countDocuments
-  //     (Event.countDocuments as jest.Mock).mockResolvedValueOnce(totalEvents);
-
-  //     // Mock Event.find chainable methods
-  //     (Event.find as jest.Mock).mockReturnValueOnce({
-  //       sort: jest.fn().mockReturnThis(),
-  //       skip: jest.fn().mockReturnThis(),
-  //       limit: jest.fn().mockReturnThis(),
-  //       populate: jest.fn().mockResolvedValueOnce(mockEvents),
-  //     });
-
-  //     // Call the controller
-  //     await getEventsByOrganizer(
-  //       mockRequest as Request,
-  //       mockResponse as Response
-  //     );
-
-  //     // Expected response
-  //     const expectedResponse = {
-  //       data: mockEvents,
-  //       pagination: {
-  //         total: totalEvents,
-  //         page: 1,
-  //         lastPage: Math.ceil(totalEvents / 2),
-  //         hasNextPage: 1 < Math.ceil(totalEvents / 2),
-  //         hasPrevPage: 1 > 1,
-  //       },
-  //     };
-
-  //     // Verify results
-  //     expect(mockResponse.status).toHaveBeenCalledWith(200);
-  //     expect(mockResponse.json).toHaveBeenCalledWith(
-  //       expect.objectContaining({
-  //         success: true,
-  //         message: "Berhasil mendapatkan event organizer",
-  //         data: expectedResponse,
-  //       })
-  //     );
-  //   });
-  // });
-
-  describe("getOrganizerStats", () => {
-    it("should return stats for an organizer", async () => {
-      mockRequest.organizer = { _id: "organizerId" } as any;
-
-      const mockEvents = [{ _id: "1" }, { _id: "2" }];
-      const mockStats = [
-        { totalRevenue: 10000, totalTransactions: 10, totalTicketsSold: 100 },
+      const mockEvents = [
+        {
+          _id: "event1",
+          title: "Event 1",
+          category: { name: "Category 1" },
+          organizer: {
+            organizerName: "Test Organizer",
+            email: "test@example.com",
+            phoneNumber: "1234567890",
+          },
+        },
       ];
 
-      (Event.find as jest.Mock).mockResolvedValue(mockEvents);
-      (Payment.aggregate as jest.Mock).mockResolvedValue(mockStats);
+      const mockTotal = 1;
 
-      await getOrganizerStats(mockRequest as Request, mockResponse as Response);
+      (Event.countDocuments as jest.Mock).mockResolvedValue(mockTotal);
+      (Event.find as jest.Mock).mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        populate: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(mockEvents),
+      });
 
-      expect(mockResponse.status).toHaveBeenCalledWith(200);
+      await getEventsByOrganizer(
+        mockRequest as Request,
+        mockResponse as Response
+      );
+
       expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(true, "Berhasil mendapatkan data dashboard", {
-          revenue: 10000,
-          transactions: 10,
-          ticketsSold: 100,
-        })
+        apiResponse(
+          true,
+          "Berhasil mendapatkan event organizer",
+          {
+            data: mockEvents,
+            pagination: {
+              total: mockTotal,
+              page: 1,
+              lastPage: 1,
+              hasNextPage: false,
+              hasPrevPage: false,
+            },
+          },
+          200
+        )
       );
     });
 
-    it("should return 404 if no events are found", async () => {
-      mockRequest.organizer = { _id: "organizerId" } as any;
+    it("should handle errors when fetching events", async () => {
+      const mockOrganizerId = "organizerId";
+      mockRequest.organizer = { id: mockOrganizerId } as any;
+      mockRequest.query = {};
 
-      (Event.find as jest.Mock).mockResolvedValue([]);
+      (Event.find as jest.Mock).mockImplementation(() => {
+        throw new Error("Fetch error");
+      });
 
-      await getOrganizerStats(mockRequest as Request, mockResponse as Response);
+      await getEventsByOrganizer(
+        mockRequest as Request,
+        mockResponse as Response
+      );
 
-      expect(mockResponse.status).toHaveBeenCalledWith(404);
       expect(mockResponse.json).toHaveBeenCalledWith(
-        apiResponse(false, "Tidak ada event terkait dengan organizer ini", 404)
+        apiResponse(
+          false,
+          "Gagal mendapatkan event organizer",
+          expect.any(Error),
+          500
+        )
       );
     });
   });

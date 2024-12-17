@@ -20,8 +20,7 @@ describe("LoginOrganizer", () => {
 
   const mockResponse = () => {
     const res: Partial<Response> = {};
-    res.status = jest.fn().mockReturnThis();
-    res.json = jest.fn();
+    res.json = jest.fn().mockReturnThis();
     return res as Response;
   };
 
@@ -37,13 +36,17 @@ describe("LoginOrganizer", () => {
     const res = mockResponse();
 
     (Organizer.findOne as jest.Mock).mockResolvedValue(null);
+    (apiResponse as jest.Mock).mockReturnValue("mocked response");
 
     await LoginOrganizer(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(
-      apiResponse(false, "Email Tidak  Ditemukan")
+    expect(apiResponse).toHaveBeenCalledWith(
+      false,
+      "Email Tidak  Ditemukan",
+      null,
+      400
     );
+    expect(res.json).toHaveBeenCalledWith("mocked response");
   });
 
   it("should return 400 if password is incorrect", async () => {
@@ -57,16 +60,16 @@ describe("LoginOrganizer", () => {
       id: "123",
       email: "test@example.com",
       password: "hashedpassword",
+      role: "organizer",
     };
     (Organizer.findOne as jest.Mock).mockResolvedValue(mockOrganizer);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+    (apiResponse as jest.Mock).mockReturnValue("mocked response");
 
     await LoginOrganizer(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(
-      apiResponse(false, "Password Salah ")
-    );
+    expect(apiResponse).toHaveBeenCalledWith(false, "Password Salah ", 400);
+    expect(res.json).toHaveBeenCalledWith("mocked response");
   });
 
   it("should return 200 and a token if login is successful", async () => {
@@ -85,16 +88,22 @@ describe("LoginOrganizer", () => {
     (Organizer.findOne as jest.Mock).mockResolvedValue(mockOrganizer);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (jwt.sign as jest.Mock).mockReturnValue("mockedToken");
+    (apiResponse as jest.Mock).mockReturnValue("mocked response");
 
     await LoginOrganizer(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(
-      apiResponse(true, "Berhasil Login ", {
-        token: "mockedToken",
-        role: "organizer",
-      })
+    expect(jwt.sign).toHaveBeenCalledWith(
+      { organizerId: mockOrganizer.id },
+      expect.any(String),
+      { expiresIn: "24h" }
     );
+    expect(apiResponse).toHaveBeenCalledWith(
+      true,
+      "Berhasil Login ",
+      { token: "mockedToken", role: "organizer" },
+      200
+    );
+    expect(res.json).toHaveBeenCalledWith("mocked response");
   });
 
   it("should return 500 if an error occurs", async () => {
@@ -107,12 +116,16 @@ describe("LoginOrganizer", () => {
     (Organizer.findOne as jest.Mock).mockRejectedValue(
       new Error("Database Error")
     );
+    (apiResponse as jest.Mock).mockReturnValue("mocked response");
 
     await LoginOrganizer(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith(
-      apiResponse(false, "Terjadi Kesalahan Saat Login")
+    expect(apiResponse).toHaveBeenCalledWith(
+      false,
+      "Terjadi Kesalahan Saat Login",
+      null,
+      500
     );
+    expect(res.json).toHaveBeenCalledWith("mocked response");
   });
 });

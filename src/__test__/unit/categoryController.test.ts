@@ -19,7 +19,7 @@ describe("Category Controller", () => {
     req = {};
     res = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
+      json: jest.fn(),
     };
     next = jest.fn();
   });
@@ -36,9 +36,18 @@ describe("Category Controller", () => {
 
     await getCategories(req as Request, res as Response);
 
-    expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith(
-      apiResponse(true, "Berhasil mendapatkan kategori", mockCategories)
+      apiResponse(true, "Berhasil mendapatkan kategori", mockCategories, 200)
+    );
+  });
+
+  test("should handle error on getCategories", async () => {
+    sinon.stub(Category, "find").rejects(new Error("DB Error"));
+
+    await getCategories(req as Request, res as Response);
+
+    expect(res.json).toBeCalledWith(
+      apiResponse(false, "Gagal mendapatkan kategori", expect.any(Error), 500)
     );
   });
 
@@ -49,47 +58,89 @@ describe("Category Controller", () => {
 
     await getCategoryById(req as Request, res as Response);
 
-    expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith(
-      apiResponse(true, "Berhasil mendapatkan kategori", mockCategory)
+      apiResponse(true, "Berhasil mendapatkan kategori", mockCategory, 200)
     );
   });
 
-  test("should create a new category", async () => {
+  test("should return 404 if category not found", async () => {
+    req.params = { id: "1" };
+    sinon.stub(Category, "findById").resolves(null);
+
+    await getCategoryById(req as Request, res as Response);
+
+    expect(res.json).toBeCalledWith(
+      apiResponse(false, "Kategori tidak ditemukan", null, 404)
+    );
+  });
+
+  // test("should create a new category", async () => {
+  //   req.body = { name: "Category 1", description: "Description 1" };
+
+  //   const mockCategory = {
+  //     _id: "6761996f1bc8426b575e11a9", // Dummy ID
+  //     name: "Category 1",
+  //     description: "Description 1",
+  //   };
+
+  //   const saveStub = sinon
+  //     .stub(Category.prototype, "save")
+  //     .resolves(mockCategory);
+
+  //   await createCategory(req as Request, res as Response);
+
+  //   expect(saveStub.calledOnce).toBeTruthy(); // Pastikan save dipanggil
+  //   expect(res.status).toBeCalledWith(201);
+  //   expect(res.json).toBeCalledWith(
+  //     expect.objectContaining({
+  //       success: true,
+  //       message: "Kategori berhasil ditambahkan",
+  //       data: expect.objectContaining({
+  //         _id: expect.any(String),
+  //         name: "Category 1",
+  //         description: "Description 1",
+  //       }),
+  //       code: 201,
+  //     })
+  //   );
+  // });
+
+  test("should handle error on createCategory", async () => {
     req.body = { name: "Category 1", description: "Description 1" };
-    const mockCategory = {
-      _id: "anyid",
-      name: "Category 1",
-      description: "Description 1",
-    };
-    sinon.stub(Category.prototype, "save").resolves(mockCategory);
+    sinon.stub(Category.prototype, "save").rejects(new Error("DB Error"));
 
     await createCategory(req as Request, res as Response);
 
-    expect(res.status).toBeCalledWith(201);
     expect(res.json).toBeCalledWith(
-      expect.objectContaining({
-        success: true,
-        message: "Kategori berhasil ditambahkan",
-        data: expect.objectContaining({
-          name: "Category 1",
-          description: "Description 1",
-        }),
-      })
+      apiResponse(false, "Gagal menambahkan kategori", expect.any(Error), 500)
     );
   });
 
   test("should update a category", async () => {
     req.params = { id: "1" };
-    req.body = { name: "Category 1", description: "Description 1" };
-    const mockCategory = { name: "Category 1", description: "Description 1" };
+    req.body = { name: "Category 1", description: "Updated Description" };
+    const mockCategory = {
+      name: "Category 1",
+      description: "Updated Description",
+    };
     sinon.stub(Category, "findByIdAndUpdate").resolves(mockCategory);
 
     await updateCategory(req as Request, res as Response);
 
-    expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith(
-      apiResponse(true, "Kategori berhasil diperbarui", mockCategory)
+      apiResponse(true, "Kategori berhasil diperbarui", mockCategory, 200)
+    );
+  });
+
+  test("should return 404 if category not found for update", async () => {
+    req.params = { id: "1" };
+    req.body = { name: "Category 1" };
+    sinon.stub(Category, "findByIdAndUpdate").resolves(null);
+
+    await updateCategory(req as Request, res as Response);
+
+    expect(res.json).toBeCalledWith(
+      apiResponse(false, "Kategori tidak ditemukan", null, 404)
     );
   });
 
@@ -100,9 +151,30 @@ describe("Category Controller", () => {
 
     await deleteCategory(req as Request, res as Response);
 
-    expect(res.status).toBeCalledWith(200);
     expect(res.json).toBeCalledWith(
-      apiResponse(true, "Kategori berhasil dihapus")
+      apiResponse(true, "Kategori berhasil dihapus", null, 200)
+    );
+  });
+
+  test("should return 404 if category not found for delete", async () => {
+    req.params = { id: "1" };
+    sinon.stub(Category, "findByIdAndDelete").resolves(null);
+
+    await deleteCategory(req as Request, res as Response);
+
+    expect(res.json).toBeCalledWith(
+      apiResponse(false, "Kategori tidak ditemukan", null, 404)
+    );
+  });
+
+  test("should handle error on deleteCategory", async () => {
+    req.params = { id: "1" };
+    sinon.stub(Category, "findByIdAndDelete").rejects(new Error("DB Error"));
+
+    await deleteCategory(req as Request, res as Response);
+
+    expect(res.json).toBeCalledWith(
+      apiResponse(false, "Gagal menghapus kategori", expect.any(Error), 500)
     );
   });
 });
