@@ -10,8 +10,7 @@ export const searchUsers = async (req: Request, res: Response) => {
 
     if (!query) {
       return res
-        .status(400)
-        .json(apiResponse(false, "Query pencarian diperlukan"));
+        .json(apiResponse(false, "Query pencarian diperlukan", null, 400));
     }
 
     const searchQuery = {
@@ -25,11 +24,10 @@ export const searchUsers = async (req: Request, res: Response) => {
 
     const users = await User.find(searchQuery).select("-password").limit(10);
 
-    res.status(200).json(apiResponse(true, "Berhasil mencari users", users));
+    res.json(apiResponse(true, "Berhasil mencari users", users, 200));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal melakukan pencarian users", error));
+      .json(apiResponse(false, "Gagal melakukan pencarian users", error, 500));
   }
 };
 
@@ -82,49 +80,12 @@ export const searchEvents = async (req: Request, res: Response) => {
       .populate("organizer", "organizerName")
       .limit(10);
 
-    res.status(200).json(apiResponse(true, "Berhasil mencari events", events));
+    res.json(apiResponse(true, "Berhasil mencari events", events, 200));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal melakukan pencarian events", error));
+      .json(apiResponse(false, "Gagal melakukan pencarian events", error, 500));
   }
 };
-
-// Search Events by Date Range
-// export const searchEventsByDateRange = async (req: Request, res: Response) => {
-//   try {
-//     const { startDate, endDate } = req.query;
-
-//     if (!startDate || !endDate) {
-//       return res
-//         .status(400)
-//         .json(apiResponse(false, "Tanggal awal dan akhir diperlukan"));
-//     }
-
-//     const events = await Event.find({
-//       date: {
-//         $gte: new Date(startDate as string),
-//         $lte: new Date(endDate as string),
-//       },
-//     })
-//       .populate("category", "name")
-//       .populate("organizer", "organizerName");
-
-//     res
-//       .status(200)
-//       .json(
-//         apiResponse(
-//           true,
-//           "Berhasil mencari events berdasarkan rentang tanggal",
-//           events
-//         )
-//       );
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json(apiResponse(false, "Gagal melakukan pencarian events", error));
-//   }
-// };
 
 // Search Events by Organizer
 export const searchEventsByOrganizer = async (req: Request, res: Response) => {
@@ -133,8 +94,7 @@ export const searchEventsByOrganizer = async (req: Request, res: Response) => {
 
     if (!organizerId) {
       return res
-        .status(400)
-        .json(apiResponse(false, "ID Organizer diperlukan"));
+        .json(apiResponse(false, "ID Organizer diperlukan", 400));
     }
 
     const events = await Event.find({ organizer: organizerId })
@@ -143,22 +103,20 @@ export const searchEventsByOrganizer = async (req: Request, res: Response) => {
       .sort({ date: -1 }); 
 
     res
-      .status(200)
       .json(
         apiResponse(
           true,
           "Berhasil mencari events berdasarkan organizer",
-          events
+          events, 200
         )
       );
   } catch (error) {
     res
-      .status(500)
       .json(
         apiResponse(
           false,
           "Gagal melakukan pencarian events by organizer",
-          error
+          error, 500
         )
       );
   }

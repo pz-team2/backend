@@ -21,14 +21,13 @@ export const getDashboardStats = async (req: Request, res: Response) => {
     };
 
     res
-      .status(200)
       .json(
-        apiResponse(true, "Berhasil mendapatkan statistik dashboard", stats)
+        apiResponse(true, "Berhasil mendapatkan statistik dashboard", stats, 200)
       );
   } catch (error) {
     res
       .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan statistik dashboard", error));
+      .json(apiResponse(false, "Gagal mendapatkan statistik dashboard", error, 500));
   }
 };
 
@@ -162,25 +161,13 @@ export const getDataUser = async (req: Request, res: Response) => {
 
     // Jika tidak ada pengguna ditemukan
     if (!users || users.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "Data Tidak Tersedia",
-        data: { message: "No users found" },
-      });
+      return res.json(apiResponse(false, "Data Tidak Tersedia","No users found", 404))
     }
 
     // Jika berhasil
-    res.status(200).json({
-      success: true,
-      message: "Berhasil Mendapatkan Data User",
-      data: response,
-    });
+    res.status(200).json(apiResponse(true, "Berhasil Mendapatkan Data User",response, 200));
   } catch (error) {
     console.log("Error fetching user data:", error);
-    res.status(500).json({
-      success: false,
-      message: "Data Tidak Tersedia",
-      data: { message: error },
-    });
+    res.status(500).json(apiResponse(false, "Data Tidak Tersedia",error, 404));
   }
 };

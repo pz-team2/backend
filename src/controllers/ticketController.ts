@@ -53,14 +53,13 @@ export const getTicketsByUserId = async (req: Request, res: Response) => {
 
     // Jika tidak ada tiket
     if (tickets.length === 0) {
-      return res.status(404).json(apiResponse(false, "Tickets not found"));
+      return res.json(apiResponse(false, "Tickets not found",null, 404));
     }
 
     res
-      .status(200)
-      .json(apiResponse(true, "Tickets retrieved successfully", tickets));
+      .json(apiResponse(true, "Tickets retrieved successfully", tickets, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Error fetching tickets", error));
+    res.json(apiResponse(false, "Error fetching tickets", error, 500));
   }
 };
 
@@ -83,11 +82,11 @@ export const getTicketByPaymentId = async (req: Request, res: Response) => {
     });
 
     if (!ticket) {
-      return res.status(404).json(apiResponse(false, "Ticket not found"));
+      return res.json(apiResponse(false, "Ticket not found", null, 404));
     }
-    res.status(200).json(apiResponse(true, "Ticket found", ticket));
+    res.json(apiResponse(true, "Ticket found", ticket, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Error fetching ticket", error));
+    res.json(apiResponse(false, "Error fetching ticket", error, 500));
   }
 };
 
@@ -99,12 +98,11 @@ export const deleteAllTickets = async (req: Request, res: Response) => {
     // Mengecek jika ada tiket yang terhapus
     if (result.deletedCount === 0) {
       return res
-        .status(404)
-        .json(apiResponse(false, "No tickets found to delete"));
+        .json(apiResponse(false, "No tickets found to delete", null, 400));
     }
 
-    res.status(200).json(apiResponse(true, "All tickets successfully deleted"));
+    res.json(apiResponse(true, "All tickets successfully deleted", 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Error deleting tickets", error));
+    res.json(apiResponse(false, "Error deleting tickets", error, 500));
   }
 };

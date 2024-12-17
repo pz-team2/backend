@@ -73,6 +73,7 @@ export const tambahEvent = async (req: Request, res: Response) => {
     const newEvent = new Event({
       title,
       quota,
+      quotaall: quota,
       price,
       startTime,
       finishTime,
@@ -90,13 +91,12 @@ export const tambahEvent = async (req: Request, res: Response) => {
 
     // Mengirim response sukses
     res
-      .status(200)
       .json(apiResponse(true, "Berhasil Menambahkan Data", newEvent, 200));
   } catch (error) {
     // Menangani error dan mengirim response
     console.log(error);
     res
-      .status(500)
+      
       .json(apiResponse(false, "Gagal Menambahkan Data", error, 500));
   }
 };
@@ -107,11 +107,9 @@ export const getEvent = async (req: Request, res: Response) => {
       .populate("category", "name")
       .populate("organizer", "organizerName");
     res
-      .status(200)
       .json(apiResponse(true, "Event berhasil diambil", events, 200));
   } catch (error) {
     res
-      .status(500)
       .json(apiResponse(false, "Error saat mengambil Event", error, 500));
   }
 };
@@ -124,14 +122,12 @@ export const getEventById = async (req: Request, res: Response) => {
 
     if (!event) {
       return res
-        .status(404)
         .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
     res
-      .status(200)
       .json(apiResponse(true, "Event berhasil diakses", event, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Error saat mengambil Event", 500));
+    res.json(apiResponse(false, "Error saat mengambil Event", 500));
   }
 };
 
@@ -154,12 +150,12 @@ export const updateEvent = async (req: Request, res: Response) => {
     const event = await Event.findById(req.params.id);
     if (!event) {
       return res
-        .status(404)
         .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
 
     event.title = title;
     event.quota = quota;
+    event.quotaall = quota,
     event.price = price;
     event.startTime = startTime;
     event.finishTime = finishTime;
@@ -174,12 +170,11 @@ export const updateEvent = async (req: Request, res: Response) => {
 
     await event.save();
     res
-      .status(200)
       .json(apiResponse(true, "Event berhasil diperbarui", event, 200));
   } catch (error) {
     console.log(error);
     res
-      .status(500)
+      
       .json(apiResponse(false, "Error memperbarui Event", error, 500));
   }
 };
@@ -189,15 +184,13 @@ export const hapusEvent = async (req: Request, res: Response) => {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) {
       return res
-        .status(404)
         .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
     res
-      .status(200)
       .json(apiResponse(true, "Event berhasil dihapus", event, 200));
   } catch (error) {
     res
-      .status(500)
+      
       .json(apiResponse(false, "Error saat menghapus Event", error, 500));
   }
 };
@@ -234,13 +227,12 @@ export const getRecentEvents = async (req: Request, res: Response) => {
     };
 
     res
-      .status(200)
       .json(
         apiResponse(true, "Berhasil mendapatkan event terbaru", response, 200)
       );
   } catch (error) {
     res
-      .status(500)
+      
       .json(apiResponse(false, "Gagal mendapatkan event terbaru", error, 500));
   }
 };
@@ -283,7 +275,6 @@ export const getDataEventOrganizer = async (req: Request, res: Response) => {
 
     // Mengirim respons dengan format yang disederhanakan
     res
-      .status(200)
       .json(
         apiResponse(true, "Berhasil mendapatkan event terbaru", eventData, 200)
       );
@@ -334,6 +325,7 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
       status: event.status,
       price: event.price,
       quota: event.quota,
+      quotaall: event.quotaall,
       description: event.description,
       address: event.address,
       organizerName: (event.organizer as any)?.organizerName || "",
@@ -344,7 +336,6 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
 
     // Mengembalikan detail event dalam format response JSON
     res
-      .status(200)
       .json(
         apiResponse(
           true,
@@ -357,7 +348,7 @@ export const getEventByRevenue = async (req: Request, res: Response) => {
     // Menangani error jika terjadi kegagalan
     console.log("Error: ", error);
     res
-      .status(500)
+      
       .json(
         apiResponse(
           true,
@@ -442,13 +433,12 @@ export const getEventsByOrganizer = async (req: Request, res: Response) => {
     };
 
     res
-      .status(200)
       .json(
         apiResponse(true, "Berhasil mendapatkan event organizer", response, 200)
       );
   } catch (error) {
     res
-      .status(500)
+      
       .json(
         apiResponse(false, "Gagal mendapatkan event organizer", error, 500)
       );
@@ -466,7 +456,6 @@ export const getEventStats = async (req: Request, res: Response) => {
 
     if (!event) {
       return res
-        .status(404)
         .json(apiResponse(false, "Event tidak ditemukan", 404));
     }
 
@@ -498,7 +487,6 @@ export const getEventStats = async (req: Request, res: Response) => {
     );
   } catch (error) {
     res
-      .status(500)
       .json(apiResponse(false, "Gagal mendapatkan detail event", error, 500));
   }
 };

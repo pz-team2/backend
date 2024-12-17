@@ -20,9 +20,8 @@ export const getOrganizerPaymentReport = async (
 
     if (!events.length) {
       return res
-        .status(404)
         .json(
-          apiResponse(false, "Tidak ada event ditemukan untuk organizer ini")
+          apiResponse(false, "Tidak ada event ditemukan untuk organizer ini", 404)
         );
     }
 
@@ -105,13 +104,12 @@ export const getOrganizerPaymentReport = async (
     };
 
     res
-      .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan laporan", result));
+      .json(apiResponse(true, "Berhasil mendapatkan laporan", result, 200));
   } catch (error) {
     res
       .status(500)
       .json(
-        apiResponse(false, "Terjadi kesalahan saat mendapatkan laporan", error)
+        apiResponse(false, "Terjadi kesalahan saat mendapatkan laporan", error, 500)
       );
   }
 };
@@ -137,8 +135,7 @@ export const payment = async (req: Request, res: Response) => {
 
   if (!event) {
     return res
-      .status(404)
-      .json(apiResponse(false, "Event Tidak Ditemukan", null));
+      .json(apiResponse(false, "Event Tidak Ditemukan", null, 404));
   }
 
   try {
@@ -178,14 +175,14 @@ export const payment = async (req: Request, res: Response) => {
 
     const midtransResponse = await snap.createTransaction(transactionParams);
 
-    res.status(200).json(
+    res.json(
       apiResponse(true, "Berhasil mendapatkan token pembayaran", {
         paymentToken: midtransResponse.token,
         redirectUrl: midtransResponse.redirect_url,
-      })
+      }, 200)
     );
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Terjadi kesalahan", error));
+    res.json(apiResponse(false, "Terjadi kesalahan", error, 500));
   }
 };
 
@@ -204,13 +201,11 @@ export const midtransNotification = async (req: Request, res: Response) => {
     const event = await Event.findOne({ _id: payment?.event._id });
     if (!event) {
       return res
-        .status(404)
         .json(apiResponse(false, "Event tidak ditemukan", null, 404));
     }
 
     if (!payment) {
       return res
-        .status(404)
         .json(apiResponse(false, "Pembayaran tidak ditemukan", null, 404));
     }
 
@@ -225,7 +220,6 @@ export const midtransNotification = async (req: Request, res: Response) => {
         );
       } else {
         return res
-          .status(400)
           .json(apiResponse(false, "Kuota tiket tidak mencukupi", null, 400));
       }
 
@@ -251,7 +245,6 @@ export const midtransNotification = async (req: Request, res: Response) => {
 
       await payment.save();
       res
-        .status(200)
         .json(
           apiResponse(
             true,
@@ -264,18 +257,15 @@ export const midtransNotification = async (req: Request, res: Response) => {
       payment.paymentStatus = "pending";
       await payment.save();
       res
-        .status(200)
         .json(
-          apiResponse(true, "Status pembayaran berhasil diperbarui", payment)
+          apiResponse(true, "Status pembayaran berhasil diperbarui", payment, 200)
         );
     } else {
       return res
-        .status(400)
         .json(apiResponse(false, "Pembayaran gagal", null, 400));
     }
   } catch (error) {
     res
-      .status(500)
       .json(
         apiResponse(
           false,
@@ -295,15 +285,14 @@ export const deleteAllPayments = async (req: Request, res: Response) => {
     // Mengecek jika ada tiket yang terhapus
     if (result.deletedCount === 0) {
       return res
-        .status(404)
         .json(apiResponse(false, "No payments found to delete", 404));
     }
 
     res
       .status(200)
-      .json(apiResponse(true, "All payments successfully deleted"));
+      .json(apiResponse(true, "All payments successfully deleted",null, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Error deleting payments", error));
+    res.json(apiResponse(false, "Error deleting payments", error, 500));
   }
 };
 
@@ -323,23 +312,19 @@ export const getUserTransactionHistory = async (
       .sort({ createdAt: -1 });
 
     if (!transactions.length) {
-      return res
-        .status(404)
-        .json(apiResponse(false, "Tidak ada transaksi ditemukan"));
+      return res .json(apiResponse(false, "Tidak ada transaksi ditemukan",null, 404));
     }
 
     res
-      .status(200)
       .json(
         apiResponse(
           true,
           "Berhasil mendapatkan histori transaksi",
-          transactions
+          transactions, 200
         )
       );
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan histori transaksi", error));
+      .json(apiResponse(false, "Gagal mendapatkan histori transaksi", error, 500));
   }
 };

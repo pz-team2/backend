@@ -15,12 +15,12 @@ export const LoginOrganizer = async (req: Request, res: Response) => {
         const organizer = await Organizer.findOne({ email });
 
         if (!organizer) {
-            return res.status(400).json(apiResponse(false, 'Email Tidak  Ditemukan'));
+            return res.json(apiResponse(false, 'Email Tidak  Ditemukan', null, 400));
         }
 
         const checkpassword = await bcrypt.compare(password, organizer.password);
         if (!checkpassword) {
-            return res.status(400).json(apiResponse(false, 'Password Salah '));
+            return res.json(apiResponse(false, 'Password Salah ', 400));
         }
 
         const {role} = organizer
@@ -28,8 +28,8 @@ export const LoginOrganizer = async (req: Request, res: Response) => {
         const payload = { organizerId: organizer.id };
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
-        return res.status(200).json(apiResponse(true, 'Berhasil Login ', { token, role }));
+        return res.json(apiResponse(true, 'Berhasil Login ', { token, role }, 200));
     } catch (error) {
-        return res.status(500).json(apiResponse(false, 'Terjadi Kesalahan Saat Login'));
+        return res.json(apiResponse(false, 'Terjadi Kesalahan Saat Login', null, 500));
     }
 }

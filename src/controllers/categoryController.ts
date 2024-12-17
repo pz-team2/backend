@@ -7,12 +7,10 @@ export const getCategories = async (req: Request, res: Response) => {
   try {
     const categories = await Category.find();
     res
-      .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan kategori", categories));
+      .json(apiResponse(true, "Berhasil mendapatkan kategori", categories, 200));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan kategori", error));
+      .json(apiResponse(false, "Gagal mendapatkan kategori", error, 500));
   }
 };
 
@@ -23,16 +21,13 @@ export const getCategoryById = async (req: Request, res: Response) => {
     const category = await Category.findById(categoryId);
     if (!category) {
       return res
-        .status(404)
-        .json(apiResponse(false, "Kategori tidak ditemukan"));
+        .json(apiResponse(false, "Kategori tidak ditemukan", null, 404));
     }
     res
-      .status(200)
-      .json(apiResponse(true, "Berhasil mendapatkan kategori", category));
+      .json(apiResponse(true, "Berhasil mendapatkan kategori", category, 200));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal mendapatkan kategori", error));
+      .json(apiResponse(false, "Gagal mendapatkan kategori", error, 500));
   }
 };
 
@@ -43,12 +38,10 @@ export const createCategory = async (req: Request, res: Response) => {
     const newCategory = new Category({ name, description });
     await newCategory.save();
     res
-      .status(201)
-      .json(apiResponse(true, "Kategori berhasil ditambahkan", newCategory));
+      .json(apiResponse(true, "Kategori berhasil ditambahkan", newCategory, 201));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal menambahkan kategori", error));
+      .json(apiResponse(false, "Gagal menambahkan kategori", error, 500));
   }
 };
 
@@ -64,16 +57,13 @@ export const updateCategory = async (req: Request, res: Response) => {
     );
     if (!updatedCategory) {
       return res
-        .status(404)
-        .json(apiResponse(false, "Kategori tidak ditemukan"));
+        .json(apiResponse(false, "Kategori tidak ditemukan", null, 404));
     }
     res
-      .status(200)
-      .json(apiResponse(true, "Kategori berhasil diperbarui", updatedCategory));
+      .json(apiResponse(true, "Kategori berhasil diperbarui", updatedCategory, 200));
   } catch (error) {
     res
-      .status(500)
-      .json(apiResponse(false, "Gagal memperbarui kategori", error));
+      .json(apiResponse(false, "Gagal memperbarui kategori", error, 500));
   }
 };
 
@@ -84,11 +74,10 @@ export const deleteCategory = async (req: Request, res: Response) => {
     const deletedCategory = await Category.findByIdAndDelete(categoryId);
     if (!deletedCategory) {
       return res
-        .status(404)
-        .json(apiResponse(false, "Kategori tidak ditemukan"));
+        .json(apiResponse(false, "Kategori tidak ditemukan",null, 404));
     }
-    res.status(200).json(apiResponse(true, "Kategori berhasil dihapus"));
+    res.json(apiResponse(true, "Kategori berhasil dihapus",null, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Gagal menghapus kategori", error));
+    res.json(apiResponse(false, "Gagal menghapus kategori", error, 500));
   }
 };

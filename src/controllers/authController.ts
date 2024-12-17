@@ -18,7 +18,7 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
     const checkEmail = await User.findOne({ email });
 
     if (checkEmail) {
-      res.status(400).json(apiResponse(false, "Email Sudah Terdaftar Silahkan Login !", null, 400));
+      res.json(apiResponse(false, "Email Sudah Terdaftar Silahkan Login !", null, 400));
       return;
     }
 
@@ -67,7 +67,7 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
     transporter.sendMail(mailOptions, async (error, info) => {
       if (error) {
         console.error("Error:", error);
-        res.status(500).json(apiResponse(false, "Email Gagal Terkirim", error, 500));
+        res.json(apiResponse(false, "Email Gagal Terkirim", error, 500));
       } else {
         const user = new User({
           username,
@@ -78,14 +78,14 @@ export const Register: RequestHandler = async (req: Request, res: Response): Pro
         });
 
         await user.save();
-        res.status(201).json(
+        res.json(
           apiResponse(true, "Registrasi Berhasil Silahkan Verifikasi Email !!", null, 201)
         );
       }
     });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json(apiResponse(false, "Terjadi Kesalahan Saat Registrasi", error, 500));
+    res.json(apiResponse(false, "Terjadi Kesalahan Saat Registrasi", error, 500));
   }
 };
 
@@ -99,12 +99,12 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json(apiResponse(false, "Email Tidak  Ditemukan"));
+      return res.json(apiResponse(false, "Email Tidak  Ditemukan", null, 404));
     }
 
     const checkpassword = await bcrypt.compare(password, user.password);
     if (!checkpassword) {
-      return res.status(400).json(apiResponse(false, "Password Salah "));
+      return res.json(apiResponse(false, "Password Salah ", null, 400));
     }
 
     // Buat payload dan token JWT
@@ -112,14 +112,12 @@ export const Login: RequestHandler = async (req: Request, res: Response) => {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
     return res
-      .status(200)
       .json(
-        apiResponse(true, "Berhasil Login ", { token, username: user.username })
+        apiResponse(true, "Berhasil Login ", { token, username: user.username }, 200)
       );
   } catch (error) {
     return res
-      .status(500)
-      .json(apiResponse(false, "Terjadi Kesalahan Saat Login"));
+      .json(apiResponse(false, "Terjadi Kesalahan Saat Login", null, 500));
   }
 };
 
@@ -133,7 +131,7 @@ export const verifyEmail: RequestHandler = async (
     const users = await User.findOne({ emailToken: token });
 
     if (!users) {
-      res.status(400).json(apiResponse(false, "Token Expired "));
+      res.json(apiResponse(false, "Token Expired ", null, 404));
       return;
     }
 
@@ -141,17 +139,13 @@ export const verifyEmail: RequestHandler = async (
     users.isVerified = true;
     await users.save();
 
-    res.status(200).json(
-      apiResponse(true, "Success Verifikasi Email Silahkan Login !!!  ", {
-        users,
-      })
+    res.json( apiResponse(true, "Success Verifikasi Email Silahkan Login !!!  ", {users,}, 202)
     );
   } catch (error) {
     // console.log("Error during email verification:", error);
     res
-      .status(500)
       .json(
-        apiResponse(false, "Terjadi Kesalahan Saat Verifikasi Email ", error)
+        apiResponse(false, "Terjadi Kesalahan Saat Verifikasi Email ", error, 500)
       );
   }
 };

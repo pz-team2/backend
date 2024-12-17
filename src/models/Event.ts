@@ -6,6 +6,7 @@ export interface IEvent extends Document {
   categoryId: string;
   title: string;
   quota: number;
+  quotaall?: number;
   price: number;
   startTime: string;
   finishTime: string;
@@ -28,6 +29,7 @@ const eventSchema: Schema<IEvent> = new Schema({
   description: { type: String, required: true },
   status: { type: String, required: true },
   quota: { type: Number, required: true },
+  quotaall: { type: Number, required: false },
   price: { type: Number, required: false },
   startTime: { type: String, required: true },
   finishTime: { type: String, required: true },

@@ -12,10 +12,9 @@ export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await User.find();
     res
-      .status(200)
-      .json(apiResponse(true, "Berhasil Mendapatkan Data User", users));
+      .json(apiResponse(true, "Berhasil Mendapatkan Data User", users, 200));
   } catch (error) {
-    res.status(500).json(apiResponse(false, "Data Tidak Tersedia", error));
+    res.json(apiResponse(false, "Data Tidak Tersedia", error, 500));
   }
 };
 
@@ -27,16 +26,14 @@ export const getUserById = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json(apiResponse(false, "User Tidak Di Temukan"));
+      return res.json(apiResponse(false, "User Tidak Di Temukan", 404));
     }
 
     return res
-      .status(200)
-      .json(apiResponse(true, "Berhasil Mengambil Detail User", { user }));
+      .json(apiResponse(true, "Berhasil Mengambil Detail User", { user }, 200));
   } catch (error) {
     return res
-      .status(500)
-      .json(apiResponse(false, "Gagal Mengambil Data", error));
+      .json(apiResponse(false, "Gagal Mengambil Data", error, 500));
   }
 };
 
@@ -49,7 +46,7 @@ export const updateUser = async (req: Request, res: Response) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json(apiResponse(false, "User Tidak Di Temukan"));
+      return res.json(apiResponse(false, "User Tidak Di Temukan",null, 404));
     }
 
     if (username) user.username = username;
@@ -61,9 +58,9 @@ export const updateUser = async (req: Request, res: Response) => {
 
     await user.save();
 
-    return res.status(200).json(apiResponse(true, "successfully", user));
+    return res.json(apiResponse(true, "successfully", user, 200));
   } catch (error) {
-    return res.status(500).json(apiResponse(false, "Erorr Update User", error));
+    return res.json(apiResponse(false, "Erorr Update User", error, 500));
   }
 };
 
@@ -77,28 +74,27 @@ export const updatePassword = async (req: Request, res: Response) => {
     const datapassword = await User.findById(userId);
 
     if (!datapassword) {
-      return res.status(404).json(apiResponse(false, "User Tidak Di Temukan"));
+      return res.json(apiResponse(false, "User Tidak Di Temukan",null, 404));
     }
 
     const pw = await bcrypt.compare(password, datapassword.password);
     if (!pw) {
       return res
-        .status(404)
-        .json(apiResponse(false, "Paasword Yang Masukan Saat Ini Salah"));
+        .json(apiResponse(false, "Paasword Yang Masukan Saat Ini Salah",null, 404));
     }
 
     if (pwbaru !== confirmpw) {
       res
-        .status(505)
-        .json(apiResponse(false, "Password Tidak Sama Ulangi !!!"));
+        
+        .json(apiResponse(false, "Password Tidak Sama Ulangi !!!",null, 505));
     }
 
     const hashPw = await bcrypt.hash(pwbaru, 10);
     datapassword.password = hashPw;
     await datapassword.save();
-    res.status(200).json(apiResponse(true, "Berhasil Update Password"));
+    res.json(apiResponse(true, "Berhasil Update Password",null, 200, ));
   } catch (error) {
     // console.log(error);
-    res.status(505).json(apiResponse(false, "Gagal Update Password", error));
+    res.json(apiResponse(false, "Gagal Update Password", error, 505));
   }
 };
