@@ -6,6 +6,8 @@ import {
   // updateTicket,
   // deleteTicket,
   deleteAllTickets,
+  getTicketsByEvent,
+  updateTicketStatus,
   // getTickets,
 } from "../controllers/ticketController";
 import { protect } from "../middleware/authMiddleware";
@@ -119,5 +121,8 @@ ticketRouter.get("/:id", getTicketByPaymentId);
  *         description: Server error
  */
 ticketRouter.delete("/", deleteAllTickets);
+
+ticketRouter.get("/data/:eventId", getTicketsByEvent);
+ticketRouter.put("/status/:ticketId", updateTicketStatus);
 
 export default ticketRouter;
