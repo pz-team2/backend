@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3500:3500"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://goevent:goevent883@cluster0.wxrk2.mongodb.net/dbGoEvent?retryWrites=true&w=majority&appName=Cluster0
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

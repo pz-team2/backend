@@ -1,23 +1,39 @@
-import mongoos, {Schema, Document} from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
-export interface Users extends Document {
-    username: string,
-    email: string,
-    password: string,
-    role: string,
-    gender: string,
-    nohp: bigint,
-    alamat: string,
+export interface IUser extends Document {
+  username?: string;
+  email: string;
+  password: string;
+  fullName: string;
+  gender: string;
+  phoneNumber: string;
+  city: string;
+  emailToken?: string;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const userSchema: Schema = new  Schema({
-    username: {type:String, require: true},
-    email: {type:String, require: true, unique: true},
-    password: {type:String, require: true},
-    role: {type:String, require: true, default: 'user'},
-    gender: {type: String, require: true},
-    nohp: {type: Number, require: true},
-    alamat: {type: String, require: true},
-})
+const userSchema: Schema<IUser> = new Schema(
+  {
+    username: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    fullName: { type: String, required: false },
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+      required: false,
+    },
+    phoneNumber: { type: String, required: false },
+    city: { type: String, required: false },
+    isVerified: { type: Boolean, required: true },
+    emailToken: { type: String, required: false },
+  },
+  {
+    timestamps: true, // Mengaktifkan createdAt dan updatedAt secara otomatis
+  }
+);
 
-export const User = mongoos.model<Users>('User', userSchema)
+const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+export default User;
